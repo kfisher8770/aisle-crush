@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aisle Crush — Admin</title>
+<style>
+  :root {
+    --pink: #D4537E; --pink-light: #FBEAF0; --pink-dark: #993556;
+    --text: #1a1a1a; --text-muted: #6b6b6b; --border: rgba(0,0,0,0.12);
+    --surface: #ffffff; --bg: #FAF9F7; --radius: 12px;
+    --green-bg: #EAF3DE; --green-text: #3B6D11;
+    --red-bg: #FCEBEB; --red-text: #A32D2D;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 2rem; }
+  .container { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 24px; font-weight: 700; color: var(--pink); margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 2rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } body { padding: 1rem; } }
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  h2 { font-size: 16px; font-weight: 600; margin-bottom: 0.75rem; }
+  label { font-size: 13px; color: var(--text-muted); font-weight: 500; display: block; margin-bottom: 5px; margin-top: 10px; }
+  textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: monospace; min-height: 160px; resize: vertical; color: var(--text); }
+  textarea:focus { outline: none; border-color: var(--pink); }
+  .hint { font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 4px; line-height: 1.5; }
+  .btn { padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn:active { transform: scale(0.97); }
+  .btn-pink { background: var(--pink); color: white; margin-top: 10px; }
+  .btn-pink:hover { background: var(--pink-dark); }
+  .btn-gray { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); margin-top: 10px; margin-left: 8px; }
+  .btn-gray:hover { background: #eee; }
+  .btn-danger { background: var(--red-bg); color: var(--red-text); border: 1px solid #F09595; margin-top: 10px; }
+  .btn-danger:hover { background: #F7C1C1; }
+  .status { margin-top: 10px; font-size: 13px; padding: 8px 12px; border-radius: 8px; display: none; }
+  .status.ok { background: var(--green-bg); color: var(--green-text); display: block; }
+  .status.err { background: var(--red-bg); color: var(--red-text); display: block; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 8px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
+  .badge { display: inline-block; background: var(--pink-light); color: var(--pink-dark); border-radius: 20px; padding: 2px 9px; font-size: 11px; font-weight: 500; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .stat { background: var(--bg); border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 700; color: var(--pink); }
+  .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .full { grid-column: 1 / -1; }
+  pre { font-size: 12px; font-family: monospace; white-space: pre-wrap; color: var(--text-muted); background: var(--bg); padding: 10px; border-radius: 8px; max-height: 300px; overflow-y: auto; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>💍 Aisle Crush — Admin</h1>
+  <div class="subtitle">Katherine & Antoine · June 20, 2025 — manage assignments, view data, monitor matches</div>
+
+  <div class="stats-grid" id="stats">
+    <div class="stat"><div class="stat-num" id="stat-assignments">—</div><div class="stat-lbl">Assignments</div></div>
+    <div class="stat"><div class="stat-num" id="stat-profiles">—</div><div class="stat-lbl">Profiles live</div></div>
+    <div class="stat"><div class="stat-num" id="stat-matches">—</div><div class="stat-lbl">Matches made</div></div>
+  </div>
+
+  <div class="grid">
+    <!-- Assignments -->
+    <div class="card">
+      <h2>Wingman → Single assignments</h2>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:8px">Paste your list below. Each line: <code>Wingman Name → Single Name</code> (or use a comma or dash).</p>
+      <textarea id="assignments-input" placeholder="Sophie → Lucas
+Marc → Camille
+Anaïs → Théo
+Julien → Margot"></textarea>
+      <div class="hint">Accepted formats: <code>Sophie → Lucas</code> · <code>Sophie, Lucas</code> · <code>Sophie - Lucas</code></div>
+      <div id="assignments-status" class="status"></div>
+      <button class="btn btn-pink" onclick="saveAssignments()">Save assignments</button>
+      <button class="btn btn-gray" onclick="loadData()">Refresh</button>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="card">
+      <h2>Live leaderboard</h2>
+      <div id="lb-table"><p style="font-size:13px;color:var(--text-muted)">Loading...</p></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Profiles -->
+    <div class="card full">
+      <h2>Submitted profiles</h2>
+      <div id="profiles-table"><p style="font-size:13px;color:var(--text-muted)">Loading...</p></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1.5rem">
+    <h2>Raw data</h2>
+    <button class="btn btn-gray" onclick="loadRaw()">Show raw JSON</button>
+    <pre id="raw-data" style="display:none;margin-top:10px"></pre>
+  </div>
+
+  <div class="card">
+    <h2>Danger zone</h2>
+    <p style="font-size:13px;color:var(--text-muted)">Reset ALL data — profiles, matches, swipes. Assignments are kept.</p>
+    <button class="btn btn-danger" onclick="resetData()">Reset all data</button>
+    <div id="reset-status" class="status"></div>
+  </div>
+</div>
+
+<script>
+function parseAssignments(text) {
+  return text.split('\n')
+    .map(l => l.trim()).filter(Boolean)
+    .map(line => {
+      // Try →, ->, comma, dash
+      let parts;
+      if (line.includes('→')) parts = line.split('→');
+      else if (line.includes('->')) parts = line.split('->');
+      else if (line.includes(',')) parts = line.split(',');
+      else if (line.includes(' - ')) parts = line.split(' - ');
+      else return null;
+      if (parts && parts.length === 2) {
+        return { wingman: parts[0].trim(), single: parts[1].trim() };
+      }
+      return null;
+    }).filter(Boolean);
+}
+
+async function saveAssignments() {
+  const text = document.getElementById('assignments-input').value;
+  const assignments = parseAssignments(text);
+  const st = document.getElementById('assignments-status');
+  if (!assignments.length) {
+    st.textContent = 'No valid assignments found. Check the format.';
+    st.className = 'status err';
+    return;
+  }
+  try {
+    await fetch('/api/admin/assignments', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ assignments })
+    });
+    st.textContent = `✅ Saved ${assignments.length} assignment${assignments.length !== 1 ? 's' : ''}.`;
+    st.className = 'status ok';
+    loadData();
+  } catch(e) {
+    st.textContent = 'Error saving. Is the server running?';
+    st.className = 'status err';
+  }
+}
+
+async function loadData() {
+  try {
+    const res = await fetch('/api/admin/data');
+    const data = await res.json();
+
+    document.getElementById('stat-assignments').textContent = (data.wingmenSingles || []).length;
+    document.getElementById('stat-profiles').textContent = (data.profiles || []).length;
+    document.getElementById('stat-matches').textContent = (data.matches || []).length;
+
+    // Fill assignments textarea if empty
+    const inp = document.getElementById('assignments-input');
+    if (!inp.value.trim() && data.wingmenSingles && data.wingmenSingles.length) {
+      inp.value = data.wingmenSingles.map(a => `${a.wingman} → ${a.single}`).join('\n');
+    }
+
+    // Leaderboard
+    const lbRes = await fetch('/api/leaderboard');
+    const lb = await lbRes.json();
+    const lbEl = document.getElementById('lb-table');
+    if (!lb.length) { lbEl.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">No profiles yet.</p>'; }
+    else {
+      lbEl.innerHTML = `<table>
+        <tr><th>#</th><th>Wingman</th><th>Single</th><th>Matches</th></tr>
+        ${lb.map((row, i) => `<tr>
+          <td>${i+1}</td>
+          <td><strong>${row.wingman}</strong></td>
+          <td>${row.single}</td>
+          <td><span class="badge">${row.matches} pt${row.matches !== 1?'s':''}</span></td>
+        </tr>`).join('')}
+      </table>`;
+    }
+
+    // Profiles
+    const pEl = document.getElementById('profiles-table');
+    if (!data.profiles || !data.profiles.length) {
+      pEl.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">No profiles submitted yet.</p>';
+    } else {
+      pEl.innerHTML = `<table>
+        <tr><th>Single</th><th>Wingman</th><th>Age</th><th>Vibes</th><th>Matches</th><th>Submitted</th></tr>
+        ${data.profiles.map(p => `<tr>
+          <td><strong>${p.singleName}</strong></td>
+          <td>${p.wingmanName}</td>
+          <td>${p.age || '—'}</td>
+          <td>${(p.vibes||[]).slice(0,3).join(', ') || '—'}</td>
+          <td><span class="badge">${p.matches || 0}</span></td>
+          <td style="color:var(--text-muted)">${new Date(p.createdAt).toLocaleTimeString()}</td>
+        </tr>`).join('')}
+      </table>`;
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function loadRaw() {
+  const el = document.getElementById('raw-data');
+  if (el.style.display !== 'none') { el.style.display = 'none'; return; }
+  const res = await fetch('/api/admin/data');
+  el.textContent = JSON.stringify(await res.json(), null, 2);
+  el.style.display = 'block';
+}
+
+async function resetData() {
+  if (!confirm('Reset ALL profiles, matches, and swipes? This cannot be undone.')) return;
+  const st = document.getElementById('reset-status');
+  try {
+    await fetch('/api/admin/reset', { method: 'POST' });
+    st.textContent = '✅ All data reset.';
+    st.className = 'status ok';
+    loadData();
+  } catch(e) {
+    st.textContent = 'Error resetting.';
+    st.className = 'status err';
+  }
+}
+
+loadData();
+setInterval(loadData, 15000); // auto-refresh every 15s
+</script>
+</body>
+</html>

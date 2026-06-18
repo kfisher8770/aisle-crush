@@ -20,7 +20,7 @@ fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 // Serve uploaded photos from the volume (their stored URLs are /uploads/<file>).
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-// ---- Photo uploads (multer → public/uploads, URL stored in data) ----
+// ---- Photo uploads (multer → UPLOAD_DIR i.e. <DATA_DIR>/uploads, URL stored in data) ----
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOAD_DIR),
   filename: (req, file, cb) => {

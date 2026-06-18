@@ -156,20 +156,29 @@ function writeData(data) {
 
 // Shape a profile for public consumption. `revealFor` is a single's name; if they
 // have matched this profile (or it's revealed), include the secret.
-function publicProfile(p, revealFor) {
+// Shape a profile for consumption. `owner` = the wingman's own view, which is the only
+// place intro requests (matcher name + photo) are exposed. Public browse never sees them.
+function publicProfile(p, revealFor, owner = false) {
   const matchedByViewer =
     revealFor && p.matches.some((m) => m.by === 'single:' + revealFor.toLowerCase());
-  const { secret, ...rest } = p;
+  const { secret, matches, ...rest } = p;
   // The secret-weapon prompt's answer must stay hidden until the viewer matches.
   const safePrompts = (Array.isArray(p.prompts) ? p.prompts : []).map((pr) =>
     pr.type === 'secret' && !matchedByViewer ? { ...pr, answer: '' } : pr,
   );
+  // Only the wingman sees the intro list; everyone else gets a count.
+  const intros = owner
+    ? (Array.isArray(matches) ? matches : [])
+        .filter((m) => m && m.name)
+        .map((m) => ({ name: m.name, photoUrl: m.photoUrl || null, recommendedBy: m.recommendedBy || '', at: m.at }))
+    : undefined;
   return {
     ...rest,
     prompts: safePrompts,
     points: P.computePoints(p),
     reactionTally: P.reactionTally(p.reactions),
     matchCount: P.uniqueMatchCount(p.matches),
+    intros,
     drinkStatus: P.drinkStatus(p.drinkLevel),
     secretUnlocked: !!matchedByViewer,
     secret: matchedByViewer ? secret : undefined,
@@ -216,7 +225,7 @@ app.get('/api/profiles/by/:creator', (req, res) => {
   res.json(
     data.profiles
       .filter((p) => (p.createdBy || '').toLowerCase() === creator)
-      .map((p) => publicProfile(p, req.query.revealFor))
+      .map((p) => publicProfile(p, req.query.revealFor, true))
   );
 });
 
@@ -313,21 +322,23 @@ app.post('/api/profiles/:id/react', (req, res) => {
 });
 
 // A single hits 💍 Match (worth a lot, once per single per profile).
-app.post('/api/profiles/:id/match', (req, res) => {
-  const single = (req.body && req.body.single ? req.body.single : '').trim();
-  if (!single) return res.status(400).json({ error: 'single name required' });
+// Match a single: requires an intro (matcher name + photo). Every submission is a
+// distinct match — anyone can match, as many times as they like, each worth points.
+app.post('/api/profiles/:id/match', upload.single('photo'), (req, res) => {
+  const b = req.body || {};
+  const name = (b.name || '').trim();
+  if (!name) return res.status(400).json({ error: 'your name is required' });
+  const photo = photoUrl(req);
+  if (!photo) return res.status(400).json({ error: 'a photo is required' });
+  const recommendedBy = (b.recommendedBy || '').trim().slice(0, 60);
   const data = readData();
   const p = findProfile(data, req.params.id);
   if (!p) return res.status(404).json({ error: 'not found' });
-  const by = 'single:' + single.toLowerCase();
-  const already = p.matches.some((m) => m.by === by);
-  if (!already) {
-    p.matches.push({ by, at: new Date().toISOString() });
-    writeData(data);
-  }
+  const by = 'm_' + Date.now().toString(36) + Math.round(Math.random() * 1e6).toString(36);
+  p.matches.push({ by, name, photoUrl: photo, recommendedBy, at: new Date().toISOString() });
+  writeData(data);
   res.json({
     success: true,
-    alreadyMatched: already,
     secret: p.secret || '',
     hasSecret: !!p.secret,
     wingman: p.createdBy,

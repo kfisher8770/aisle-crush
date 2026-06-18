@@ -27,7 +27,7 @@ function markMatched(id) {
 }
 
 /* ---------------- app state ---------------- */
-const state = { catalog: null, profiles: [], deckIndex: 0, formMode: 'create', editingId: null, photos: [], builderPrompts: [], eventProfileId: null, eventSel: null, eventDrinkLevel: 0, evtPhotoFile: null };
+const state = { catalog: null, profiles: [], deckIndex: 0, browseFilter: null, formMode: 'create', editingId: null, photos: [], builderPrompts: [], eventProfileId: null, eventSel: null, eventDrinkLevel: 0, evtPhotoFile: null };
 
 const COLORS = ['#D4537E', '#378ADD', '#1D9E75', '#7F77DD', '#D85A30', '#BA7517', '#639922', '#185FA5'];
 function colorFor(name) { let h = 0; for (const c of (name || 'X')) h = (h * 31 + c.charCodeAt(0)) & 0xffff; return COLORS[h % COLORS.length]; }
@@ -71,6 +71,7 @@ function switchTab(btn) {
   document.querySelectorAll('.tab').forEach((t) => t.classList.remove('on'));
   btn.classList.add('on');
   const id = btn.dataset.screen;
+  if (id !== 's-browse') state.browseFilter = null; // filter only lives while Browse is in view
   goScreen(id);
   if (id === 's-browse') renderDeck();
   if (id === 's-leaderboard') loadLeaderboard();
@@ -90,17 +91,40 @@ function enterFromExplain() { hideExplain(); dismissSplash(); }
 async function loadProfiles() {
   const q = myName() ? `?revealFor=${encodeURIComponent(myName())}` : '';
   state.profiles = await getJSON('/api/profiles' + q);
-  if (state.deckIndex >= state.profiles.length) state.deckIndex = Math.max(0, state.profiles.length - 1);
 }
+
+// The list the deck navigates: all singles, or just one wingman's when filtered.
+function deckList() {
+  if (!state.browseFilter) return state.profiles;
+  const w = state.browseFilter.toLowerCase();
+  return state.profiles.filter((p) => (p.createdBy || '').toLowerCase() === w);
+}
+
+function renderBrowseFilter() {
+  const bf = document.getElementById('browse-filter');
+  if (!bf) return;
+  if (state.browseFilter) {
+    bf.hidden = false;
+    bf.innerHTML = `<span class="bf-label">${esc(state.browseFilter)}'s singles</span>
+      <button class="bf-x" onclick="clearBrowseFilter()" aria-label="Show all singles">See all ✕</button>`;
+  } else { bf.hidden = true; bf.innerHTML = ''; }
+}
+
+function clearBrowseFilter() { state.browseFilter = null; state.deckIndex = 0; renderDeck(); }
 
 async function renderDeck() {
   const deck = document.getElementById('deck');
   try { await loadProfiles(); } catch { deck.innerHTML = '<div class="loading">Could not load profiles.</div>'; return; }
-  if (!state.profiles.length) {
+  // a filter that matches nothing falls back to showing everyone
+  if (state.browseFilter && !deckList().length) state.browseFilter = null;
+  renderBrowseFilter();
+  const list = deckList();
+  if (!list.length) {
     document.getElementById('deck-progress').hidden = true;
     deck.innerHTML = `<div class="empty"><div class="section-title">No singles yet</div><div class="section-sub">Be the first wingman. Head to the <b>You</b> tab and build a profile for a single friend.</div><button class="btn btn-pink" onclick="setTab('s-me')">Become a wingman</button></div>`;
     return;
   }
+  if (state.deckIndex > list.length) state.deckIndex = 0; // keep in range (list.length = the CTA)
   deck.innerHTML = `<div class="deck-stage" id="deck-stage"></div>
     <div class="deck-controls" id="deck-controls"></div>`;
   renderCard();
@@ -108,7 +132,7 @@ async function renderDeck() {
 
 function updateDeckProgress() {
   const wrap = document.getElementById('deck-progress');
-  const singles = state.profiles.length;
+  const singles = deckList().length;
   if (!wrap || !singles) { if (wrap) wrap.hidden = true; return; }
   // count the "become a wingman" card in the total so the bar isn't full
   // until you've flipped all the way to it
@@ -124,14 +148,15 @@ function renderCard() {
   const stage = document.getElementById('deck-stage');
   if (!stage) return;
   updateDeckProgress();
+  const list = deckList();
   // virtual last card: a "become a wingman" CTA after the real singles
-  if (state.deckIndex >= state.profiles.length) { renderWingmanCTA(stage); return; }
-  const p = state.profiles[state.deckIndex];
+  if (state.deckIndex >= list.length) { renderWingmanCTA(stage); return; }
+  const p = list[state.deckIndex];
   if (!p) return;
   const col = colorFor(p.singleName);
   const photos = (p.photoUrls && p.photoUrls.length) ? p.photoUrls : (p.photoUrl ? [p.photoUrl] : []);
   const badges = `<div class="wingman-badge">by ${esc(p.createdBy)}</div>
-        <div class="card-count">${state.deckIndex + 1} / ${state.profiles.length}</div>
+        <div class="card-count">${state.deckIndex + 1} / ${list.length}</div>
         <div class="pts-badge">${p.points} pts</div>`;
   let gallery;
   if (photos.length) {
@@ -146,12 +171,13 @@ function renderCard() {
     gallery = `<div class="swipe-gallery" data-i="0"><div class="gal-slide active" style="background:linear-gradient(135deg, ${col}33, ${col}66)"><div class="avatar" style="background:${col}">${esc(initials(p.singleName))}</div></div>${badges}</div>`;
   }
   const myR = myReactionsFor(p.id);
-  // dating-app action bar (below the card): 3 reactions + match as the 4th
+  // dating-app action bar (below the card): 2 reactions + the Match action
   const reactActions = state.catalog.reactionEmojis.map((e) => {
     const cnt = (p.reactionTally && p.reactionTally[e]) || 0;
     const lbl = REACTION_LABELS[e] || '';
-    return `<button class="act-btn react ${myR.includes(e) ? 'on' : ''}" onclick="pickReaction('${p.id}','${e}')" aria-label="${esc(lbl)} (+1)"><span class="act-emoji">${e}</span><span class="act-label">${esc(lbl)}</span><span class="act-pts">+1</span><span class="act-count">${cnt || ''}</span></button>`;
+    return `<button class="act-btn react ${myR.includes(e) ? 'on' : ''}" onclick="pickReaction('${p.id}','${e}')" aria-label="${esc(lbl)} (+1)"><span class="act-emoji">${e}${cnt ? `<small>${cnt}</small>` : ''}</span><span class="act-label">${esc(lbl)}</span><span class="act-pts">+1</span></button>`;
   }).join('');
+  const matchAction = `<button class="act-btn match" onclick="openIntro('${p.id}','${esc(p.singleName)}')" aria-label="Match (+10)"><span class="act-emoji">❤️${p.matchCount ? `<small>${p.matchCount}</small>` : ''}</span><span class="act-label">Match</span><span class="act-pts">+10</span></button>`;
 
   const events = p.events || [];
   const timeline = events.length
@@ -167,18 +193,18 @@ function renderCard() {
       <div class="swipe-body">
         <div class="swipe-name">${esc(p.singleName)}</div>
         ${p.pitch ? `<div class="swipe-pitch">${esc(p.pitch)}</div>` : ''}
-        ${p.askAbout ? `<div class="ask-about"><span class="aa-label">Ask them about</span>${esc(p.askAbout)}</div>` : ''}
         ${p.drinkStatus && p.drinkStatus.level > 0 ? `<div class="meter">Drink-o-meter: <b>${esc(p.drinkStatus.label)}</b></div>` : ''}
+        ${p.askAbout ? `<div class="ask-about"><span class="aa-label">Ask them about</span>${esc(p.askAbout)}</div>` : ''}
         ${renderCardPrompts(p)}
+        <div class="tl-head">Caught in the act${events.length ? ` (${events.length})` : ''}</div>
+        ${timeline}
         <div class="give-head">Give ${esc(p.singleName)} points</div>
         <button class="btn btn-ghost btn-log" onclick="openEvent('${p.id}', ${p.drinkLevel || 0}, '${esc(p.singleName)}')">Log a moment <span class="log-pts">+5 to +25</span></button>
         <div class="give-or">Or upvote them by tapping a reaction below. Each adds +1.</div>
-        <div class="tl-head">Caught in the act${events.length ? ` (${events.length})` : ''}</div>
-        ${timeline}
       </div>
     </div>`;
 
-  document.getElementById('deck-controls').innerHTML = `<div class="act-row">${reactActions}</div>`;
+  document.getElementById('deck-controls').innerHTML = `<div class="act-row">${reactActions}${matchAction}</div>`;
 
   attachSwipe(document.getElementById('card'));
 }
@@ -269,8 +295,8 @@ function attachSwipe(card) {
 }
 
 function flip(dir, animDir) {
-  const n = state.profiles.length + 1; // +1 = the "become a wingman" card
-  if (n <= 1 && !state.profiles.length) return;
+  const n = deckList().length + 1; // +1 = the "become a wingman" card
+  if (n <= 1) return;
   const card = document.getElementById('card');
   state.deckIndex = (state.deckIndex + dir + n) % n;
   if (card && animDir) {
@@ -305,19 +331,40 @@ async function react(id, emoji) {
   } catch (e) { toast(e.message); }
 }
 
-async function doMatch() {
-  const p = state.profiles[state.deckIndex]; if (!p) return;
-  if (iMatched(p.id)) { toast('You already matched ' + p.singleName); return; }
-  let name = myName();
-  if (!name) {
-    name = (window.prompt("What's your name? (matching puts your name on it)") || '').trim();
-    if (!name) return; setMyName(name);
-  }
+/* ---------------- match → wingman intro ---------------- */
+// Tapping Match opens the intro sheet. The match + points only happen once the
+// matcher submits their name and photo; then we celebrate.
+function openIntro(id, singleName) {
+  state.introProfileId = id;
+  state.introSingleName = singleName;
+  state.introPhotoFile = null;
+  document.getElementById('intro-single').textContent = singleName;
+  document.getElementById('intro-name').value = '';
+  document.getElementById('intro-recby').value = '';
+  document.getElementById('intro-photo').value = '';
+  document.getElementById('intro-photo-pick').classList.remove('has-img');
+  document.getElementById('intro-photo-text').textContent = 'Add a photo';
+  openSheet('intro-overlay');
+}
+
+async function submitIntro() {
+  const id = state.introProfileId; if (!id) return;
+  const name = document.getElementById('intro-name').value.trim();
+  if (!name) { toast('Add your name'); return; }
+  if (!state.introPhotoFile) { toast('Add a photo'); return; }
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('photo', state.introPhotoFile);
+  const recBy = document.getElementById('intro-recby').value.trim();
+  if (recBy) fd.append('recommendedBy', recBy);
+  const btn = document.getElementById('intro-submit'); btn.disabled = true;
   try {
-    const res = await postJSON(`/api/profiles/${p.id}/match`, { single: name });
-    markMatched(p.id); p.points = res.points;
+    const res = await api(`/api/profiles/${id}/match`, { method: 'POST', body: fd });
+    const p = state.profiles.find((x) => String(x.id) === String(id)); if (p) p.points = res.points;
+    closeSheet('intro-overlay');
     showMatch(res);
-  } catch (e) { toast(e.message); }
+    renderDeck();
+  } catch (e) { toast(e.message); } finally { btn.disabled = false; }
 }
 
 function showMatch(res) {
@@ -331,6 +378,13 @@ function showMatch(res) {
 }
 
 /* ---------------- leaderboard ---------------- */
+// Tapping a wingman row jumps to Browse, filtered to that wingman's singles.
+function gotoWingman(name) {
+  state.browseFilter = name;
+  state.deckIndex = 0;
+  setTab('s-browse');
+}
+
 async function loadLeaderboard() {
   const el = document.getElementById('lb-content');
   el.innerHTML = '<div class="loading">Loading…</div>';
@@ -338,7 +392,7 @@ async function loadLeaderboard() {
     const data = await getJSON('/api/leaderboard');
     if (!data.length) { el.innerHTML = '<div class="empty"><div class="section-sub">No wingmen on the board yet. Build a profile to get on it.</div></div>'; return; }
     el.innerHTML = '<div class="card">' + data.map((row, i) => `
-      <div class="lb-row">
+      <div class="lb-row" role="button" tabindex="0" onclick="gotoWingman('${esc(row.wingman)}')" onkeydown="if(event.key==='Enter')gotoWingman('${esc(row.wingman)}')">
         <div class="lb-rank">${i + 1}</div>
         <div class="lb-avatar" style="background:${colorFor(row.wingman)}">${esc(initials(row.wingman))}</div>
         <div class="lb-info">
@@ -372,14 +426,28 @@ async function renderMe() {
     ? `<div class="card" style="background:var(--pink-light);border-color:var(--pink-mid)"><b>Your assignment:</b> build a profile for <b>${esc(assigned.single)}</b>.</div>` : '';
 
   const list = mine.length
-    ? mine.map((p) => `<div class="mine-row">
-        <div class="mine-av" style="${p.photoUrl ? `background-image:url('${esc(p.photoUrl)}')` : `background:${colorFor(p.singleName)}`}">${p.photoUrl ? '' : esc(initials(p.singleName))}</div>
-        <div class="mine-info"><div class="mine-name">${esc(p.singleName)}${p.selfMade ? ' <span style="font-size:11px;color:var(--text-muted)">(you)</span>' : ''}</div><div class="mine-meta">${p.points} pts, ${(p.events || []).length} events</div></div>
-        <div class="mine-actions">
-          <button class="icon-btn" title="Log moment" onclick="openEvent('${p.id}', ${p.drinkLevel || 0}, '${esc(p.singleName)}')">Log</button>
-          <button class="icon-btn" title="Edit" onclick="editProfile('${p.id}')">Edit</button>
-          <button class="icon-btn" title="Delete" onclick="deleteProfile('${p.id}','${esc(p.singleName)}')">Delete</button>
-        </div></div>`).join('')
+    ? mine.map((p) => {
+      const intros = (p.intros || []).filter((it) => it && it.name);
+      const introsBlock = intros.length ? `
+        <div class="intros">
+          <div class="intros-head">Intro requests (${intros.length})</div>
+          ${intros.map((it) => `<div class="intro-req">
+            ${it.photoUrl ? `<img class="intro-av" src="${esc(it.photoUrl)}" onclick="viewPhoto('${esc(it.photoUrl)}')" alt="">` : `<div class="intro-av"></div>`}
+            <div class="intro-txt"><b>${esc(it.name)}</b> wants an intro${it.recommendedBy ? `<span class="intro-recby">Recommended by ${esc(it.recommendedBy)}</span>` : ''}</div>
+          </div>`).join('')}
+        </div>` : '';
+      return `<div class="mine-item">
+        <div class="mine-row">
+          <div class="mine-av" style="${p.photoUrl ? `background-image:url('${esc(p.photoUrl)}')` : `background:${colorFor(p.singleName)}`}">${p.photoUrl ? '' : esc(initials(p.singleName))}</div>
+          <div class="mine-info"><div class="mine-name">${esc(p.singleName)}${p.selfMade ? ' <span style="font-size:11px;color:var(--text-muted)">(you)</span>' : ''}</div><div class="mine-meta">${p.points} pts, ${(p.events || []).length} events</div></div>
+          <div class="mine-actions">
+            <button class="icon-btn" title="Log moment" onclick="openEvent('${p.id}', ${p.drinkLevel || 0}, '${esc(p.singleName)}')">Log</button>
+            <button class="icon-btn" title="Edit" onclick="editProfile('${p.id}')">Edit</button>
+            <button class="icon-btn" title="Delete" onclick="deleteProfile('${p.id}','${esc(p.singleName)}')">Delete</button>
+          </div>
+        </div>${introsBlock}
+      </div>`;
+    }).join('')
     : '<div class="tl-empty">No profiles yet. Build one below.</div>';
 
   el.innerHTML = `
@@ -400,7 +468,16 @@ async function renderMe() {
 }
 
 function saveMyName() { const n = document.getElementById('me-name-input').value.trim(); if (!n) { toast('Enter your name'); return; } setMyName(n); renderMe(); }
-function changeName() { const n = (window.prompt('Your name:', myName()) || '').trim(); if (n) { setMyName(n); renderMe(); } }
+function changeName() {
+  document.getElementById('name-input-modal').value = myName();
+  openSheet('name-overlay');
+  setTimeout(() => document.getElementById('name-input-modal').focus(), 60);
+}
+function saveNameModal() {
+  const n = document.getElementById('name-input-modal').value.trim();
+  if (!n) { toast('Enter your name'); return; }
+  setMyName(n); closeSheet('name-overlay'); renderMe();
+}
 
 /* ---------------- profile builder ---------------- */
 // Prompt library, mirrors PROMPT_DEFS in server.js.
@@ -710,6 +787,7 @@ async function init() {
   maybeSplash();
   document.getElementById('photo-input').addEventListener('change', onPhotoInput);
   wirePhoto('evt-photo', 'evt-photo-pick', 'evt-photo-text', 'evtPhotoFile');
+  wirePhoto('intro-photo', 'intro-photo-pick', 'intro-photo-text', 'introPhotoFile');
   try { state.catalog = await getJSON('/api/event-catalog'); } catch { state.catalog = { reactionEmojis: [], drinkLevels: [], catalog: {}, points: {} }; }
   renderDeck();
 }

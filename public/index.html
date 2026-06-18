@@ -76,6 +76,7 @@
       <div class="deck-progress-track"><div class="deck-progress-fill" id="deck-progress-fill"></div></div>
       <div class="deck-progress-label" id="deck-progress-label"></div>
     </div>
+    <div class="browse-filter" id="browse-filter" hidden></div>
     <div class="deck" id="deck"><div class="loading">Rounding up the singles…</div></div>
   </div>
 
@@ -179,6 +180,62 @@
     <div class="sheet-foot">
       <button class="btn btn-pink btn-log" id="evt-submit" onclick="submitEvent()">Log it</button>
       <button class="btn btn-outline" onclick="closeSheet('event-overlay')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ask for a wingman intro (gates the match) -->
+<div class="overlay" id="intro-overlay">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-grab"></div>
+      <button type="button" class="sheet-close" aria-label="Close" onclick="closeSheet('intro-overlay')">✕</button>
+      <div class="sheet-title">Ask for a wingman intro</div>
+      <div class="sheet-sub">Like <b id="intro-single">them</b>? Drop a name and photo for their wingman, who can make the introduction.</div>
+    </div>
+
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="intro-name" placeholder="e.g. Mia" autocomplete="off">
+      <div class="hint">You, or a single friend you're putting forward.</div>
+    </div>
+
+    <label class="photo-pick evt-photo-hero" id="intro-photo-pick">
+      <span class="evt-photo-text" id="intro-photo-text">Add a photo</span>
+      <input type="file" id="intro-photo" accept="image/*">
+    </label>
+
+    <div class="intro-secondary">
+      <div class="field">
+        <label>Recommended by <span class="opt">optional</span></label>
+        <input type="text" id="intro-recby" placeholder="Your name" autocomplete="off">
+        <div class="hint">Matchmaking for a friend? Add your name so the wingman knows who put them forward.</div>
+      </div>
+    </div>
+
+    <div class="sheet-foot">
+      <button class="btn btn-pink" id="intro-submit" onclick="submitIntro()">Send intro and match</button>
+      <button class="btn btn-outline" onclick="closeSheet('intro-overlay')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Switch name modal -->
+<div class="overlay" id="name-overlay">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-grab"></div>
+      <button type="button" class="sheet-close" aria-label="Close" onclick="closeSheet('name-overlay')">✕</button>
+      <div class="sheet-title">Your name</div>
+      <div class="sheet-sub">This is how you show up as a wingman.</div>
+    </div>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="name-input-modal" placeholder="e.g. Anatole" autocomplete="off" onkeydown="if(event.key==='Enter')saveNameModal()">
+    </div>
+    <div class="sheet-foot">
+      <button class="btn btn-pink" onclick="saveNameModal()">Save</button>
+      <button class="btn btn-outline" onclick="closeSheet('name-overlay')">Cancel</button>
     </div>
   </div>
 </div>

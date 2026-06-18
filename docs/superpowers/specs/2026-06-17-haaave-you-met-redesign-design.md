@@ -31,6 +31,17 @@ Named after Barney Stinson's wingman catchphrase from *How I Met Your Mother*.
 - No moderation queue. Trust-based; admin can reset/delete.
 - No desktop layout work beyond "it doesn't break."
 
+## Mobile-first (layout priority)
+
+**This is a mobile-first app and the phone is the only surface that matters.** The
+mobile layout must be pixel-perfect and is where all layout effort goes. We do NOT
+reflow into a separate desktop layout. On wide screens (`min-width: 600px`) the
+exact same mobile UI is simply centered as a phone-like column (max-width 480px)
+with a shadow against a warm backdrop, so it reads as intentional rather than a
+broken full-width page. Desktop is explicitly not a priority and does not need to
+look perfect — but it must look deliberate, never broken. Any future layout work
+optimises mobile first; desktop only ever inherits the centered-column treatment.
+
 ## Personas & flows
 
 ### 1. Wingman (primary)

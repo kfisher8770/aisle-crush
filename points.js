@@ -8,7 +8,7 @@ const DRINK_STEP_POINTS = 2; // each advance of the drink-o-meter
 const CUSTOM_EVENT_POINTS = 5; // freeform "write your own" event
 
 // Playful, intentionally-not-romantic reaction set (incl. the requested 🍑 🍆).
-const REACTION_EMOJIS = ['🔥', '😍', '💯']; // curated "give points" reactions
+const REACTION_EMOJIS = ['🔥', '😍']; // curated reactions (Match is a separate action)
 
 // Drink-o-meter statuses by level (index 0 = stone sober, not an event).
 const DRINK_LEVELS = [

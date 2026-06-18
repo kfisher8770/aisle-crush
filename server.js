@@ -405,6 +405,38 @@ app.get('/api/admin/data', (req, res) => {
   res.json(readData());
 });
 
+// Diagnose where data is being written and whether it survives redeploys.
+//   /api/admin/health?key=YOUR_PASSWORD
+// persistent:true means DATA_DIR points at a mounted volume, not the throwaway disk.
+app.get('/api/admin/health', (req, res) => {
+  if (process.env.EXPORT_PASSWORD && (req.query.key || '') !== process.env.EXPORT_PASSWORD) {
+    return res.status(401).json({ error: 'wrong or missing ?key= password' });
+  }
+  let profileCount = null;
+  let uploadCount = null;
+  let writable = false;
+  try { profileCount = (readData().profiles || []).length; } catch {}
+  try { uploadCount = fs.readdirSync(UPLOAD_DIR).filter((f) => f !== '.gitkeep').length; } catch {}
+  try {
+    const probe = path.join(DATA_DIR, '.write-probe');
+    fs.writeFileSync(probe, 'ok');
+    fs.unlinkSync(probe);
+    writable = true;
+  } catch {}
+  res.json({
+    dataDir: DATA_DIR,
+    appDir: __dirname,
+    dataDirFromEnv: !!process.env.DATA_DIR,
+    persistent: !!process.env.DATA_DIR && DATA_DIR !== __dirname, // false ⇒ data WILL be lost on redeploy
+    writable,
+    dataFile: DATA_FILE,
+    dataFileExists: fs.existsSync(DATA_FILE),
+    profileCount,
+    uploadDir: UPLOAD_DIR,
+    uploadCount,
+  });
+});
+
 // Download everything (all photos + data.json) as a single zip, so the host can
 // keep a copy on their PC after the event. Password-gated via EXPORT_PASSWORD.
 //   /api/admin/export?key=YOUR_PASSWORD

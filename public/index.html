@@ -157,30 +157,29 @@
 
 <!-- Log-event sheet -->
 <div class="overlay" id="event-overlay">
-  <div class="sheet" id="event-sheet">
-    <div class="sheet-head">
-      <div class="sheet-grab"></div>
-      <button type="button" class="sheet-close" aria-label="Close" onclick="closeSheet('event-overlay')">✕</button>
+  <div class="sheet event-sheet" id="event-sheet">
+    <div class="sheet-grab"></div>
+    <button type="button" class="sheet-close" aria-label="Close" onclick="closeSheet('event-overlay')">✕</button>
+    <div class="evt-head">
       <div class="sheet-title" id="evt-title">Log a moment</div>
       <div class="sheet-sub">Two taps: grab the receipt, pick what went down. It posts to their public timeline.</div>
     </div>
 
-    <label class="photo-pick evt-photo-hero" id="evt-photo-pick">
-      <span class="evt-photo-text" id="evt-photo-text">Snap or upload the proof</span>
-      <input type="file" id="evt-photo" accept="image/*">
-    </label>
-    <div class="evt-photo-req" id="evt-photo-req">📸 A photo is the receipt. No proof, no points.</div>
+    <div class="evt-body">
+      <label class="photo-pick evt-photo-hero" id="evt-photo-pick">
+        <span class="evt-photo-text" id="evt-photo-text">Snap or upload the proof</span>
+        <input type="file" id="evt-photo" accept="image/*">
+      </label>
+      <div class="evt-photo-req" id="evt-photo-req">📸 A photo is the receipt. No proof, no points.</div>
 
-    <div id="evt-catalog"></div>
+      <div id="evt-catalog"></div>
 
-    <div class="field" id="evt-custom-field" style="display:none">
-      <label>What went down?</label>
-      <input type="text" id="evt-custom-text" placeholder="e.g. Got the bouquet AND the DJ's number">
-    </div>
+      <div class="field" id="evt-custom-field" style="display:none">
+        <label>What went down?</label>
+        <input type="text" id="evt-custom-text" placeholder="e.g. Got the bouquet AND the DJ's number" oninput="updateCustomSel()">
+      </div>
 
-    <div class="sheet-foot">
       <button class="btn btn-pink btn-log" id="evt-submit" onclick="submitEvent()">Log it</button>
-      <button class="btn btn-outline" onclick="closeSheet('event-overlay')">Cancel</button>
     </div>
   </div>
 </div>

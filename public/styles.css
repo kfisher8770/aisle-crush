@@ -360,21 +360,35 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .overlay { position: fixed; inset: 0; background: rgba(42,20,32,.5); backdrop-filter: blur(3px); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
 #share-overlay { z-index: 600; } /* above the splash (z-index 500) so it works from there */
 .overlay.show { display: flex; animation: rise .2s ease; }
-.sheet { background: var(--bg); border-top: 2px solid var(--pink); width: 100%; max-width: var(--maxw); border-radius: 20px 20px 0 0; padding: 1.1rem 1.15rem calc(1.1rem + env(safe-area-inset-bottom)); max-height: 88dvh; overflow-y: auto; animation: slideUp .26s cubic-bezier(.2,.7,.2,1); }
+.sheet { background: var(--bg); border-top: 2px solid var(--pink); width: 100%; max-width: var(--maxw); border-radius: 20px 20px 0 0; padding: 1.1rem 1.15rem calc(12px + env(safe-area-inset-bottom)); max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain; animation: slideUp .26s cubic-bezier(.2,.7,.2,1); }
+/* lock the page behind an open sheet so scrolling can't bleed through */
+body.sheet-open { overflow: hidden; }
 @keyframes slideUp { from { transform: translateY(50px); opacity: .5; } to { transform: none; opacity: 1; } }
 .sheet-grab { width: 40px; height: 4px; border-radius: 2px; background: var(--border-strong); margin: 0 auto 12px; }
 .sheet-title { font-family: var(--display); font-size: 22px; font-weight: 900; color: var(--pink-dark); margin-bottom: 3px; }
 .sheet-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
 
 /* sticky sheet header keeps the close button reachable while the body scrolls */
-.sheet-head { position: sticky; top: 0; z-index: 6; background: var(--bg); margin: -1.1rem -1.15rem 14px; padding: 1.1rem 1.15rem 10px; border-radius: 20px 20px 0 0; }
+.sheet-head { position: sticky; top: -1.1rem; z-index: 6; background: var(--bg); margin: -1.1rem -1.15rem 14px; padding: 1.1rem 1.15rem 10px; border-radius: 20px 20px 0 0; }
 .sheet-head .sheet-title, .sheet-head .sheet-sub { margin-bottom: 0; }
 .sheet-head .sheet-title { margin-bottom: 3px; padding-right: 40px; }
 .sheet-close { position: absolute; top: 14px; right: 1.05rem; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); font-size: 15px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(60,30,45,.08); }
 .sheet-close:active { transform: scale(.9); }
 
+/* Log-a-moment sheet: simple flex column — fixed title/sub, one scrollable body, no sticky */
+.event-sheet { position: relative; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+.event-sheet .sheet-grab { margin: 9px auto 8px; }
+.event-sheet .evt-head { flex: none; padding: 2px 1.15rem 12px; }
+.event-sheet .evt-head .sheet-title { padding-right: 44px; margin-bottom: 3px; }
+.event-sheet .evt-head .sheet-sub { margin-bottom: 0; }
+.event-sheet .evt-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 1.15rem calc(14px + env(safe-area-inset-bottom)); }
+.event-sheet .btn-log { margin-top: 14px; }
+
 /* ---- Log-a-moment sheet ---- */
-.sheet-foot { position: sticky; bottom: 0; margin: 14px -1.15rem -1.1rem; padding: 12px 1.15rem calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, transparent, var(--bg) 22%); }
+/* pinned so the button is always visible; it owns the bottom safe-area so the button
+   lands in the same spot whether the tab scrolls or not */
+.sheet:has(.sheet-foot) { padding-bottom: 0; }
+.sheet-foot { position: sticky; bottom: 0; margin: 6px -1.15rem 0; padding: 8px 1.15rem calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, transparent, var(--bg) 45%); }
 .sheet-foot .btn-outline { margin-top: 6px; }
 
 /* share / invite QR (generated, framed "Scan me") */

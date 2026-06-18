@@ -758,9 +758,14 @@ function selectSegment(seg) {
   } else if (seg === 'custom') {
     panel.innerHTML = `<div class="evt-hint">Something the list didn't cover? Spell it out, worth +${cat.points.custom}.</div>`;
     customField.style.display = '';
-    state.eventSel = { type: 'custom' };
     setTimeout(() => document.getElementById('evt-custom-text').focus(), 60);
   }
+  updateSubmit();
+}
+
+// Custom moment only counts once there's text — keep the button muted until then.
+function updateCustomSel() {
+  state.eventSel = document.getElementById('evt-custom-text').value.trim() ? { type: 'custom' } : null;
   updateSubmit();
 }
 
@@ -775,7 +780,7 @@ function selectEvent(btn) {
 function updateSubmit() {
   const btn = document.getElementById('evt-submit');
   const sel = state.eventSel;
-  if (!sel) { btn.innerHTML = 'Pick a moment above'; btn.classList.add('btn-muted'); return; }
+  if (!sel) { btn.innerHTML = state.eventSeg === 'custom' ? 'Describe the moment' : 'Pick a moment above'; btn.classList.add('btn-muted'); return; }
   const pts = sel.type === 'custom' ? (state.catalog.points.custom || 5) : (sel.pts || 0);
   btn.innerHTML = `Log it <span class="log-pts">+${pts}</span>`;
   btn.classList.remove('btn-muted');
@@ -801,12 +806,15 @@ async function submitEvent() {
 }
 
 /* ---------------- sheets / photo viewer ---------------- */
-function openSheet(id) { document.getElementById(id).classList.add('show'); }
-function closeSheet(id) { document.getElementById(id).classList.remove('show'); }
+function openSheet(id) { document.getElementById(id).classList.add('show'); document.body.classList.add('sheet-open'); }
+function closeSheet(id) {
+  document.getElementById(id).classList.remove('show');
+  if (!document.querySelector('.overlay.show')) document.body.classList.remove('sheet-open');
+}
 function viewPhoto(url) { document.getElementById('full-photo-img').src = url; document.getElementById('full-photo').classList.add('show'); }
 
 /* close overlay when tapping backdrop */
-document.querySelectorAll('.overlay').forEach((o) => o.addEventListener('click', (e) => { if (e.target === o) o.classList.remove('show'); }));
+document.querySelectorAll('.overlay').forEach((o) => o.addEventListener('click', (e) => { if (e.target === o) closeSheet(o.id); }));
 
 /* photo input wiring */
 function wirePhoto(inputId, pickId, textId, stateKey) {

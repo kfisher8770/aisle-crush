@@ -219,8 +219,9 @@ function renderWingmanCTA(stage) {
           <path class="bm-wing" d="M35 19c8-7 16-6 19.5-2.5C49 16 43 18 37 23Z"/>
           <path class="bm-heart" d="M28 32c-2-2-8-7-8-12.5 0-2.7 2-4.5 4.3-4.5 1.7 0 3.1 1 3.7 2.3.6-1.3 2-2.3 3.7-2.3 2.3 0 4.3 1.8 4.3 4.5C36 25 30 30 28 32Z"/>
         </svg>
-        <div class="cta-title">That's everyone… for now</div>
-        <div class="cta-sub">Know a single who belongs here? Build them a profile and rack up points as their wingman.</div>
+        <div class="cta-eyebrow">That's everyone, for now</div>
+        <div class="cta-title">Know someone single? Add them.</div>
+        <div class="cta-sub">Build them a profile and rack up points as their wingman.</div>
         <button class="btn btn-pink" onclick="setTab('s-me')">Become a wingman</button>
       </div>
     </div>`;
@@ -557,7 +558,10 @@ function renderPhotoTiles() {
       <button class="tile-x" onclick="removePhoto(${i})" aria-label="Remove photo">×</button>
     </div>`).join('');
   if (state.photos.length < 3) {
+    // active "Add" tile for the next slot...
     html += `<button class="photo-tile add" onclick="document.getElementById('photo-input').click()" aria-label="Add photo"><span>+</span><small>Add</small></button>`;
+    // ...then faint placeholders for the remaining slots, so the 3-photo limit is obvious
+    for (let i = state.photos.length + 1; i < 3; i++) html += `<div class="photo-tile slot" aria-hidden="true"></div>`;
   }
   wrap.innerHTML = html;
 }

@@ -191,6 +191,7 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
   background: radial-gradient(120% 80% at 50% 0%, var(--pink-light), var(--surface) 70%); }
 .cta-inner { display: flex; flex-direction: column; align-items: center; gap: 11px; max-width: 320px; }
 .cta-mark { width: 56px; height: auto; margin-bottom: 2px; }
+.cta-eyebrow { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--pink); }
 .cta-title { font-family: var(--display); font-size: 25px; font-weight: 900; line-height: 1.1; color: var(--pink-dark); }
 .cta-sub { font-size: 14px; color: var(--text-muted); line-height: 1.55; }
 .cta-inner .btn { width: auto; padding-left: 24px; padding-right: 24px; margin-top: 8px; }
@@ -226,6 +227,7 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .photo-tile.add span { font-size: 26px; line-height: 1; }
 .photo-tile.add small { font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; }
 .photo-tile.add:hover { border-color: var(--pink); }
+.photo-tile.slot { border: 1.5px dashed var(--border-strong); background: transparent; }
 .cover-badge { position: absolute; top: 6px; left: 6px; background: var(--pink); color: #fff; font-family: var(--mono); font-size: 8.5px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 7px; border-radius: 5px; }
 .tile-x { position: absolute; top: 5px; right: 5px; width: 24px; height: 24px; border-radius: 50%; border: none; background: rgba(42,32,36,.62); color: #fff; font-size: 16px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .tile-x.dark { position: static; background: var(--gray-bg); color: var(--text-muted); width: 26px; height: 26px; }

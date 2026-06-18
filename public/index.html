@@ -23,6 +23,7 @@
   </div>
   <div class="legendary">Katherine and Antoine. June 20. The wingman games begin.</div>
   <button class="btn btn-pink" onclick="dismissSplash()">Suit up and enter</button>
+  <button class="btn splash-link" onclick="openShare()">Invite people (show the QR)</button>
   <button class="btn splash-link" onclick="showExplain()">Wait, what is this?</button>
 </div>
 
@@ -92,8 +93,8 @@
   <!-- ===== ME ===== -->
   <div class="screen" id="s-me">
     <div class="app-head">
-      <div class="section-title">You</div>
-      <div class="section-sub">Manage your singles and log the night.</div>
+      <div class="section-title">You, the wingman</div>
+      <div class="section-sub">Manage your singles and see who's asked for an intro!</div>
     </div>
     <div id="me-content"></div>
   </div>
@@ -241,7 +242,6 @@
     <div class="share-url" id="share-url"></div>
     <div class="sheet-foot">
       <button class="btn btn-pink" id="share-btn" onclick="shareApp()">Copy link</button>
-      <button class="btn btn-outline" onclick="closeSheet('share-overlay')">Close</button>
     </div>
   </div>
 </div>

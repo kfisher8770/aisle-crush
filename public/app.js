@@ -466,8 +466,7 @@ async function renderMe() {
       ${list}
     </div>
     <button class="btn btn-pink" onclick="newProfile()">Build a new profile</button>
-    <button class="btn btn-ghost" onclick="newProfile(true)" style="margin-top:8px">Make a profile for myself</button>
-    <button class="btn btn-outline" onclick="openShare()" style="margin-top:8px">Invite people (show the QR)</button>`;
+    <button class="btn btn-ghost" onclick="newProfile(true)" style="margin-top:8px">Make a profile for myself</button>`;
 }
 
 function saveMyName() { const n = document.getElementById('me-name-input').value.trim(); if (!n) { toast('Enter your name'); return; } setMyName(n); renderMe(); }

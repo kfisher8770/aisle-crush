@@ -65,6 +65,18 @@
       <path class="bm-heart" d="M28 32c-2-2-8-7-8-12.5 0-2.7 2-4.5 4.3-4.5 1.7 0 3.1 1 3.7 2.3.6-1.3 2-2.3 3.7-2.3 2.3 0 4.3 1.8 4.3 4.5C36 25 30 30 28 32Z"/>
     </svg>
     <span class="brand-word">Haaave you met<small>…?</small></span>
+    <div class="brand-actions">
+      <button type="button" class="brand-action" aria-label="Invite people"
+              onclick="event.stopPropagation(); openShare();">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v12"/><path d="M8 7l4-4 4 4"/>
+          <path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/>
+        </svg>
+      </button>
+      <button type="button" class="brand-action" aria-label="What's the deal?"
+              onclick="event.stopPropagation(); showExplain();">?</button>
+    </div>
   </header>
 
   <!-- ===== BROWSE (swipe deck) ===== -->
@@ -120,13 +132,14 @@
         <input type="text" id="b-pitch" placeholder="e.g. The best hang at any wedding, hands down.">
       </div>
       <div class="field">
-        <label>Ask them about…</label>
+        <label style="margin-bottom:4px">Ask them about…</label>
+        <div class="hint" style="margin:0 0 7px">Give a stranger something to walk up and say.</div>
         <input type="text" id="b-ask" placeholder="e.g. their doomed attempt at making sourdough">
-        <div class="hint">This is the opener. Give a stranger something to walk up and say.</div>
       </div>
 
       <div class="builder-prompts">
-        <div class="label" style="margin-bottom:10px">Their prompts <span class="prompt-count" id="prompt-count">0/4</span> <span style="color:var(--text-muted);font-weight:400">optional</span></div>
+        <div class="label" style="margin-bottom:4px">Their prompts <span class="prompt-count" id="prompt-count">0/4</span> <span style="color:var(--text-muted);font-weight:400">optional</span></div>
+        <div class="hint" style="margin:0 0 12px">Pick a few questions to answer about them.</div>
         <div id="prompt-cards"></div>
         <button class="btn btn-outline" id="add-prompt-btn" onclick="openPromptPicker()">Add a prompt</button>
       </div>

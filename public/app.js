@@ -241,7 +241,7 @@ function renderCardPrompts(p) {
     } else if (pr.type === 'secret') {
       html += (p.secretUnlocked && pr.answer)
         ? `<div class="card-prompt secret"><div class="cp-q">${esc(pr.question || 'Secret weapon')}</div><div class="cp-a">${esc(pr.answer)}</div></div>`
-        : `<div class="card-prompt secret"><div class="cp-q">${esc(pr.question || 'Secret weapon')}</div><div class="cp-a cp-locked">Unlocks once they match</div></div>`;
+        : `<div class="card-prompt secret"><div class="cp-q">${esc(pr.question || 'Secret weapon')}</div><div class="cp-a cp-locked">Unlocks if you match</div></div>`;
     } else if (!pr.answer) {
       continue;
     } else if (pr.key === 'green-flag') {
@@ -258,7 +258,7 @@ function renderCardPrompts(p) {
     if (p.redFlag) html += `<div class="card-prompt flag-red"><div class="cp-q">Red flag</div><div class="cp-a">${esc(p.redFlag)}</div></div>`;
     if (p.hasSecret) html += (p.secretUnlocked && p.secret)
       ? `<div class="card-prompt secret"><div class="cp-q">Secret</div><div class="cp-a">${esc(p.secret)}</div></div>`
-      : `<div class="card-prompt secret"><div class="cp-q">Secret</div><div class="cp-a cp-locked">Unlocks once they match</div></div>`;
+      : `<div class="card-prompt secret"><div class="cp-q">Secret</div><div class="cp-a cp-locked">Unlocks if you match</div></div>`;
   }
   return html;
 }

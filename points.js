@@ -141,7 +141,10 @@ function leaderboard(profiles = []) {
     const row = byCreator.get(creator) || { wingman: creator, points: 0, singles: [], profileCount: 0 };
     row.points += pts;
     row.profileCount += 1;
-    if (p.singleName && !row.singles.includes(p.singleName)) row.singles.push(p.singleName);
+    if (p.singleName && !row.singles.some((s) => s.name === p.singleName)) {
+      const photoUrl = p.photoUrl || (Array.isArray(p.photoUrls) && p.photoUrls[0]) || null;
+      row.singles.push({ name: p.singleName, photoUrl });
+    }
     byCreator.set(creator, row);
   }
   return [...byCreator.values()].sort(

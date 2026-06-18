@@ -99,7 +99,7 @@ test('leaderboard aggregates per creator and sorts by points desc', () => {
   assert.strictEqual(lb[0].points, 25);
   assert.strictEqual(lb[1].wingman, 'Sophie');
   assert.strictEqual(lb[1].points, 15);
-  assert.deepStrictEqual(lb[1].singles.sort(), ['Ben', 'Lucas']);
+  assert.deepStrictEqual(lb[1].singles.map((s) => s.name).sort(), ['Ben', 'Lucas']);
 });
 
 test('leaderboard falls back to singleName when no createdBy', () => {

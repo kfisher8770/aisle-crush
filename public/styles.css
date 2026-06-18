@@ -322,14 +322,27 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .act-btn.match.on .act-emoji, .act-btn.match.on .act-label, .act-btn.match.on .act-pts, .act-btn.match.on .act-count { color: #fff; }
 
 /* leaderboard */
-.lb-row { display: flex; align-items: center; gap: 13px; padding: 14px 0; border-bottom: 1px dotted var(--border-strong); cursor: pointer; }
+/* zero card padding + clip so the podium tint bands reach the card edges */
+.lb-card { padding: 0; overflow: hidden; }
+.lb-row { display: flex; align-items: center; gap: 13px; padding: 9px 1.15rem; border-bottom: 1px dotted var(--border-strong); cursor: pointer; }
 .lb-row:active { opacity: .6; }
 .lb-row:last-child { border-bottom: none; }
-.lb-rank { font-family: var(--display); font-size: 22px; font-weight: 900; color: var(--text-muted); width: 30px; text-align: center; }
-.lb-avatar { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 17px; font-weight: 900; color: #fff; flex-shrink: 0; box-shadow: 0 2px 8px rgba(60,30,45,.15); }
+/* podium tint for the top two — fills the row edge to edge */
+.lb-lead, .lb-second { border-bottom: none; }
+.lb-lead { background: rgba(239,159,39,.13); }   /* faint gold */
+.lb-second { background: rgba(120,122,138,.13); } /* faint silver */
+.lb-rank { font-family: var(--display); font-size: 22px; font-weight: 900; color: var(--text-muted); width: 26px; text-align: center; flex: none; }
+.lb-lead .lb-rank { color: var(--gold); }
+.lb-second .lb-rank { color: #8C8EA0; }
+.lb-more { font-family: var(--mono); font-size: 10.5px; letter-spacing: .5px; color: var(--text-muted); align-self: center; }
 .lb-info { flex: 1; min-width: 0; }
-.lb-name { font-family: var(--display); font-size: 17px; font-weight: 700; color: var(--text); }
-.lb-single { font-family: var(--mono); font-size: 11px; letter-spacing: .5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-name { font-family: var(--display); font-size: 18px; font-weight: 700; color: var(--text); }
+.lb-single { font-family: var(--mono); font-size: 11px; letter-spacing: .5px; color: var(--text-muted); margin-top: 4px; }
+/* singles a wingman manages — label + round photo/name chips on one wrapping row */
+.lb-managing { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 5px; }
+.lb-managing-label { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+.lb-single-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); }
+.lb-single-av { width: 24px; height: 24px; border-radius: 50%; flex: none; background-size: cover; background-position: center; display: inline-flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 10px; font-weight: 800; color: #fff; box-shadow: 0 0 0 1px var(--border); }
 .lb-pts { font-family: var(--display); font-size: 22px; font-weight: 900; color: var(--pink); }
 .lb-pts small { font-family: var(--mono); font-size: 9px; font-weight: 400; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; }
 

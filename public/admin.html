@@ -65,7 +65,7 @@ async function load() {
 
   document.getElementById('lb').innerHTML = lb.length
     ? '<table><tr><th>#</th><th>Wingman</th><th>Singles</th><th>Points</th></tr>' +
-      lb.map((r, i) => `<tr><td>${i + 1}</td><td><b>${r.wingman}</b></td><td>${(r.singles || []).join(', ')}</td><td>${r.points}</td></tr>`).join('') + '</table>'
+      lb.map((r, i) => `<tr><td>${i + 1}</td><td><b>${r.wingman}</b></td><td>${(r.singles || []).map(s => (s && s.name) || s).join(', ')}</td><td>${r.points}</td></tr>`).join('') + '</table>'
     : '<div class="muted">No data yet.</div>';
 
   document.getElementById('profiles').innerHTML = (data.profiles || []).length

@@ -80,8 +80,8 @@ function switchTab(btn) {
 function setTab(screen) { const b = document.querySelector(`.tab[data-screen="${screen}"]`); if (b) switchTab(b); }
 
 /* ---------------- splash ---------------- */
-function maybeSplash() { document.getElementById('splash').classList.add('show'); } // show on every load
-function dismissSplash() { document.getElementById('splash').classList.remove('show'); }
+function maybeSplash() { if (!localStorage.getItem(LS.splash)) document.getElementById('splash').classList.add('show'); } // first visit only
+function dismissSplash() { localStorage.setItem(LS.splash, '1'); document.getElementById('splash').classList.remove('show'); }
 function showSplash() { document.getElementById('splash').classList.add('show'); }
 function showExplain() { document.getElementById('explain').classList.add('show'); }
 function hideExplain() { document.getElementById('explain').classList.remove('show'); }
@@ -394,16 +394,28 @@ async function loadLeaderboard() {
   try {
     const data = await getJSON('/api/leaderboard');
     if (!data.length) { el.innerHTML = '<div class="empty"><div class="section-sub">No wingmen on the board yet. Build a profile to get on it.</div></div>'; return; }
-    el.innerHTML = '<div class="card">' + data.map((row, i) => `
-      <div class="lb-row" role="button" tabindex="0" onclick="gotoWingman('${esc(row.wingman)}')" onkeydown="if(event.key==='Enter')gotoWingman('${esc(row.wingman)}')">
+    el.innerHTML = '<div class="card lb-card">' + data.map((row, i) => {
+      const singles = Array.isArray(row.singles) ? row.singles : [];
+      const shown = singles.slice(0, 2);
+      const extra = singles.length - shown.length;
+      const chips = shown.map((s) => `
+            <span class="lb-single-chip">
+              <span class="lb-single-av" style="${s.photoUrl ? `background-image:url('${esc(s.photoUrl)}')` : `background:${colorFor(s.name)}`}">${s.photoUrl ? '' : esc(initials(s.name))}</span>
+              ${esc(s.name)}
+            </span>`).join('') + (extra > 0 ? `<span class="lb-more">+${extra} more</span>` : '');
+      const singlesHtml = singles.length
+        ? `<div class="lb-managing"><span class="lb-managing-label">Managing</span>${chips}</div>`
+        : `<div class="lb-single">No singles yet</div>`;
+      const rankClass = i === 0 ? ' lb-lead' : i === 1 ? ' lb-second' : '';
+      return `
+      <div class="lb-row${rankClass}" role="button" tabindex="0" onclick="gotoWingman('${esc(row.wingman)}')" onkeydown="if(event.key==='Enter')gotoWingman('${esc(row.wingman)}')">
         <div class="lb-rank">${i + 1}</div>
-        <div class="lb-avatar" style="background:${colorFor(row.wingman)}">${esc(initials(row.wingman))}</div>
         <div class="lb-info">
           <div class="lb-name">${esc(row.wingman)}</div>
-          <div class="lb-single">${esc(row.singles.join(', ') || 'No singles yet')}</div>
+          ${singlesHtml}
         </div>
         <div class="lb-pts">${row.points}<small> pts</small></div>
-      </div>`).join('') + '</div>';
+      </div>`; }).join('') + '</div>';
   } catch { el.innerHTML = '<div class="loading">Could not load leaderboard.</div>'; }
 }
 

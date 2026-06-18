@@ -580,7 +580,10 @@ function openPromptPicker() {
   const used = new Set(state.builderPrompts.map((p) => p.key));
   const avail = PROMPTS.filter((p) => !used.has(p.key));
   document.getElementById('prompt-picker-list').innerHTML = avail
-    .map((p) => `<button class="prompt-pick-item" onclick="addPrompt('${p.key}')">${p.emoji ? p.emoji + ' ' : ''}${esc(p.q)}</button>`).join('');
+    .map((p) => `<button class="prompt-pick-item${p.type === 'secret' ? ' is-secret' : ''}" onclick="addPrompt('${p.key}')">
+      <span class="ppi-q">${p.emoji ? p.emoji + ' ' : ''}${esc(p.q)}</span>
+      ${p.type === 'secret' ? '<span class="ppi-lock">Hidden until matched</span>' : ''}
+    </button>`).join('');
   openSheet('prompt-picker-overlay');
 }
 function addPrompt(key) {

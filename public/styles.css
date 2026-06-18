@@ -243,8 +243,13 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .tt-inputs { display: flex; flex-direction: column; gap: 7px; }
 
 .prompt-picker-list { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 14px; max-height: 56dvh; overflow-y: auto; }
-.prompt-pick-item { text-align: left; border: 1px solid var(--border-strong); background: var(--surface); border-radius: 10px; padding: 13px 14px; font-size: 14px; cursor: pointer; color: var(--text); font-family: var(--body); }
+.prompt-pick-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; border: 1px solid var(--border-strong); background: var(--surface); border-radius: 10px; padding: 13px 14px; font-size: 14px; cursor: pointer; color: var(--text); font-family: var(--body); }
 .prompt-pick-item:hover { border-color: var(--pink); background: var(--pink-light); }
+.prompt-pick-item .ppi-q { min-width: 0; }
+/* secret-weapon prompt: answer stays hidden until a match, flag it as special */
+.prompt-pick-item.is-secret { border-style: dashed; border-color: var(--pink-mid); background: var(--pink-light); }
+.prompt-pick-item .ppi-lock { flex: none; display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .5px; text-transform: uppercase; color: var(--pink-dark); background: var(--surface); border: 1px solid var(--pink-mid); border-radius: 20px; padding: 4px 9px; }
+.prompt-pick-item .ppi-lock::before { content: '🔒'; font-size: 10px; }
 
 /* ---------------- card photo carousel ---------------- */
 .swipe-gallery { position: relative; height: 216px; flex-shrink: 0; overflow: hidden; }

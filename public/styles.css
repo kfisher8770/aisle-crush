@@ -376,6 +376,19 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .sheet-foot { position: sticky; bottom: 0; margin: 14px -1.15rem -1.1rem; padding: 12px 1.15rem calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, transparent, var(--bg) 22%); }
 .sheet-foot .btn-outline { margin-top: 6px; }
 
+/* share / invite QR (generated, framed "Scan me") */
+.share-qr { display: flex; justify-content: center; margin: 2px 0 10px; }
+.qr-card { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.qr-scanme { font-family: var(--body); font-weight: 800; font-size: 17px; letter-spacing: 3px; text-transform: uppercase; color: var(--text); }
+.qr-frame { position: relative; padding: 14px; }
+.qr-frame img { display: block; width: 200px; max-width: 52vw; height: auto; }
+.qrc { position: absolute; width: 22px; height: 22px; border: 3px solid var(--text); }
+.qrc.tl { top: 0; left: 0; border-right: 0; border-bottom: 0; border-radius: 7px 0 0 0; }
+.qrc.tr { top: 0; right: 0; border-left: 0; border-bottom: 0; border-radius: 0 7px 0 0; }
+.qrc.bl { bottom: 0; left: 0; border-right: 0; border-top: 0; border-radius: 0 0 0 7px; }
+.qrc.br { bottom: 0; right: 0; border-left: 0; border-top: 0; border-radius: 0 0 7px 0; }
+.share-url { font-family: var(--mono); font-size: 12px; letter-spacing: .3px; color: var(--pink-dark); text-align: center; margin-bottom: 4px; word-break: break-all; }
+
 /* photo hero — the "receipt" */
 .evt-photo-hero { position: relative; padding: 26px 18px; display: flex; flex-direction: column; align-items: center; gap: 7px; }
 .evt-photo-hero:not(.has-img)::before { content: '📸'; font-size: 30px; filter: saturate(.9); }

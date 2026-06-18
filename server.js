@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const archiver = require('archiver');
+const QRCode = require('qrcode');
 const P = require('./points');
 
 const app = express();
@@ -210,6 +211,21 @@ app.get('/api/event-catalog', (req, res) => {
 
 app.get('/api/assignments', (req, res) => {
   res.json(readData().assignments);
+});
+
+// Generate a QR for the app's own URL on the fly, so it always matches wherever the
+// app is actually served. The client passes its origin; we fall back to the request host.
+app.get('/api/qr.svg', async (req, res) => {
+  const target = String(req.query.url || '').slice(0, 512) || `${req.protocol}://${req.get('host')}`;
+  try {
+    const svg = await QRCode.toString(target, {
+      type: 'svg', margin: 1, errorCorrectionLevel: 'M',
+      color: { dark: '#2A2024', light: '#ffffff' },
+    });
+    res.type('image/svg+xml').set('Cache-Control', 'public, max-age=300').send(svg);
+  } catch {
+    res.status(400).send('could not build QR');
+  }
 });
 
 // All profiles (for browsing). Optional ?revealFor=<single> to unlock matched secrets.

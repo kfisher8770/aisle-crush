@@ -220,6 +220,32 @@
   </div>
 </div>
 
+<!-- Share / invite (QR) -->
+<div class="overlay" id="share-overlay">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-grab"></div>
+      <button type="button" class="sheet-close" aria-label="Close" onclick="closeSheet('share-overlay')">✕</button>
+      <div class="sheet-title">Invite people</div>
+      <div class="sheet-sub">Show this code. Anyone can scan it to open the app and join in.</div>
+    </div>
+    <div class="share-qr">
+      <div class="qr-card">
+        <div class="qr-scanme">Scan me</div>
+        <div class="qr-frame">
+          <img id="share-qr-img" alt="Scan to open Haaave you met">
+          <span class="qrc tl"></span><span class="qrc tr"></span><span class="qrc bl"></span><span class="qrc br"></span>
+        </div>
+      </div>
+    </div>
+    <div class="share-url" id="share-url"></div>
+    <div class="sheet-foot">
+      <button class="btn btn-pink" id="share-btn" onclick="shareApp()">Copy link</button>
+      <button class="btn btn-outline" onclick="closeSheet('share-overlay')">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- Switch name modal -->
 <div class="overlay" id="name-overlay">
   <div class="sheet">

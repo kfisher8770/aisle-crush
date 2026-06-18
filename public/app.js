@@ -464,10 +464,47 @@ async function renderMe() {
       ${list}
     </div>
     <button class="btn btn-pink" onclick="newProfile()">Build a new profile</button>
-    <button class="btn btn-ghost" onclick="newProfile(true)" style="margin-top:8px">Make a profile for myself</button>`;
+    <button class="btn btn-ghost" onclick="newProfile(true)" style="margin-top:8px">Make a profile for myself</button>
+    <button class="btn btn-outline" onclick="openShare()" style="margin-top:8px">Invite people (show the QR)</button>`;
 }
 
 function saveMyName() { const n = document.getElementById('me-name-input').value.trim(); if (!n) { toast('Enter your name'); return; } setMyName(n); renderMe(); }
+/* ---------------- share / invite ---------------- */
+function openShare() {
+  const url = location.origin + location.pathname.replace(/\/$/, '');
+  document.getElementById('share-qr-img').src = '/api/qr.svg?url=' + encodeURIComponent(url);
+  document.getElementById('share-url').textContent = location.host + location.pathname.replace(/\/$/, '');
+  document.getElementById('share-btn').textContent = 'Share link';
+  openSheet('share-overlay');
+}
+// Copy that also works in insecure contexts (http LAN IP), where navigator.clipboard
+// is unavailable — falls back to the legacy execCommand path.
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+  return new Promise((resolve, reject) => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select(); ta.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch { ok = false; }
+    document.body.removeChild(ta);
+    ok ? resolve() : reject(new Error('copy failed'));
+  });
+}
+
+async function shareApp() {
+  const url = location.origin + location.pathname.replace(/\/$/, '');
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Haaave you met…?', url }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; } // cancelled; else fall back to copy
+  }
+  try { await copyText(url); toast('Link copied'); }
+  catch { toast(url); }
+}
+
 function changeName() {
   document.getElementById('name-input-modal').value = myName();
   openSheet('name-overlay');

@@ -156,7 +156,7 @@ function renderCard() {
   const col = colorFor(p.singleName);
   const photos = (p.photoUrls && p.photoUrls.length) ? p.photoUrls : (p.photoUrl ? [p.photoUrl] : []);
   const badges = `<div class="wingman-badge">by ${esc(p.createdBy)}</div>
-        <div class="card-count">${state.deckIndex + 1} / ${list.length}</div>
+        ${photos.length > 1 ? `<div class="card-count">1 / ${photos.length}</div>` : ''}
         <div class="pts-badge">${p.points} pts</div>`;
   let gallery;
   if (photos.length) {
@@ -271,6 +271,8 @@ function galleryNav(zone, dir) {
   g.dataset.i = i;
   slides.forEach((s, n) => s.classList.toggle('active', n === i));
   dots.forEach((d, n) => d.classList.toggle('on', n === i));
+  const cc = g.querySelector('.card-count');
+  if (cc) cc.textContent = `${i + 1} / ${slides.length}`;
 }
 
 /* swipe gesture: horizontal drag flips; vertical scrolls the body */

@@ -2,721 +2,213 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Aisle Crush 💍</title>
-<style>
-  :root {
-    --pink: #D4537E;
-    --pink-light: #FBEAF0;
-    --pink-mid: #F4C0D1;
-    --pink-dark: #993556;
-    --green-bg: #EAF3DE;
-    --green-text: #3B6D11;
-    --red-bg: #FCEBEB;
-    --red-text: #A32D2D;
-    --amber-bg: #FAEEDA;
-    --amber-text: #854F0B;
-    --gray-bg: #F1EFE8;
-    --gray-text: #5F5E5A;
-    --text: #1a1a1a;
-    --text-muted: #6b6b6b;
-    --border: rgba(0,0,0,0.12);
-    --surface: #ffffff;
-    --bg: #FAF9F7;
-    --radius: 14px;
-    --radius-sm: 8px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
-
-  .app { max-width: 430px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; }
-
-  /* Screens */
-  .screen { display: none; flex-direction: column; flex: 1; padding: 1.25rem; animation: fadeIn 0.2s ease; }
-  .screen.active { display: flex; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* Top bar */
-  .topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
-  .back { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text-muted); padding: 4px; }
-  .topbar-title { font-size: 17px; font-weight: 600; }
-
-  /* Logo */
-  .logo { text-align: center; padding: 2.5rem 0 2rem; }
-  .logo-ring { font-size: 52px; display: block; margin-bottom: 10px; }
-  .logo-name { font-size: 30px; font-weight: 700; letter-spacing: -1px; color: var(--pink); }
-  .logo-date { font-size: 13px; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.3px; }
-
-  /* Cards */
-  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
-
-  /* Role buttons */
-  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1rem; }
-  .role-btn { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1rem; cursor: pointer; text-align: center; transition: all 0.15s; }
-  .role-btn:active { transform: scale(0.97); }
-  .role-btn:hover, .role-btn:focus { border-color: var(--pink); background: var(--pink-light); }
-  .role-icon { font-size: 32px; display: block; margin-bottom: 8px; }
-  .role-label { font-size: 15px; font-weight: 600; color: var(--text); }
-  .role-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
-
-  /* Section titles */
-  .section-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .section-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.5; }
-
-  /* Form */
-  .field { margin-bottom: 1rem; }
-  .field label { font-size: 13px; color: var(--text-muted); font-weight: 500; display: block; margin-bottom: 5px; }
-  input[type=text], input[type=number], textarea, select {
-    width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
-    font-size: 15px; font-family: inherit; background: var(--surface); color: var(--text);
-    transition: border-color 0.15s; appearance: none;
-  }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--pink); }
-  textarea { resize: none; height: 80px; line-height: 1.5; }
-
-  /* Progress bar */
-  .progress { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--pink); border-radius: 2px; transition: width 0.35s ease; }
-
-  /* Pill selectors */
-  .pill-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-  .pill { border: 1.5px solid var(--border); border-radius: 20px; padding: 6px 13px; font-size: 13px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.12s; user-select: none; }
-  .pill.on { border-color: var(--pink); background: var(--pink-light); color: var(--pink-dark); }
-
-  /* Stars */
-  .star-row { display: flex; gap: 6px; margin-top: 6px; }
-  .star { font-size: 28px; cursor: pointer; color: var(--border); transition: color 0.1s; line-height: 1; }
-  .star.lit { color: #EF9F27; }
-
-  /* Buttons */
-  .btn { width: 100%; padding: 14px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; letter-spacing: 0.1px; }
-  .btn:active { transform: scale(0.98); }
-  .btn-pink { background: var(--pink); color: white; }
-  .btn-pink:hover { background: var(--pink-dark); }
-  .btn-outline { background: transparent; color: var(--text-muted); border: 1px solid var(--border); margin-top: 8px; }
-  .btn-outline:hover { background: var(--gray-bg); }
-
-  /* Swipe card */
-  .swipe-card { background: var(--surface); border-radius: 20px; overflow: hidden; box-shadow: 0 2px 20px rgba(0,0,0,0.08); margin-bottom: 1rem; }
-  .swipe-photo { height: 240px; display: flex; align-items: center; justify-content: center; position: relative; }
-  .avatar { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 700; color: white; }
-  .wingman-badge { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.92); backdrop-filter: blur(4px); border-radius: 20px; padding: 5px 11px; font-size: 12px; color: var(--pink-dark); font-weight: 500; }
-  .card-count { position: absolute; top: 14px; left: 14px; background: rgba(0,0,0,0.35); border-radius: 20px; padding: 4px 10px; font-size: 12px; color: white; font-weight: 500; }
-  .swipe-body { padding: 1rem 1.25rem 1.25rem; }
-  .swipe-name { font-size: 24px; font-weight: 700; }
-  .swipe-meta { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
-  .swipe-vibes { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
-  .vibe-tag { background: var(--pink-light); color: var(--pink-dark); border-radius: 20px; padding: 4px 11px; font-size: 12px; font-weight: 500; }
-  .swipe-pitch { font-size: 13px; color: var(--text-muted); line-height: 1.6; font-style: italic; border-left: 3px solid var(--pink-mid); padding-left: 11px; margin: 10px 0; }
-  .flag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
-  .flag { border-radius: var(--radius-sm); padding: 9px 10px; font-size: 12px; line-height: 1.4; }
-  .flag.green { background: var(--green-bg); color: var(--green-text); }
-  .flag.red { background: var(--red-bg); color: var(--red-text); }
-  .secret-lock { background: var(--gray-bg); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 12px; color: var(--gray-text); text-align: center; margin-top: 8px; }
-  .dance-row { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--text-muted); margin-top: 8px; }
-
-  /* Swipe actions */
-  .swipe-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; padding: 0 0 4px; }
-  .action-btn { border: 2px solid var(--border); border-radius: 50px; padding: 14px 10px; font-size: 22px; cursor: pointer; background: var(--surface); transition: all 0.15s; text-align: center; }
-  .action-btn:active { transform: scale(1.12); }
-  .action-btn.pass { border-color: #F09595; }
-  .action-btn.maybe { border-color: #FAC775; }
-  .action-btn.heart { border-color: #5DCAA5; }
-  .action-labels { display: flex; justify-content: space-around; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-
-  /* Match screen */
-  .match-screen { text-align: center; padding: 2rem 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .match-burst { font-size: 64px; margin-bottom: 14px; animation: pop 0.4s ease; }
-  @keyframes pop { 0% { transform: scale(0.5); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
-  .match-title { font-size: 30px; font-weight: 700; color: var(--pink); }
-  .match-sub { font-size: 15px; color: var(--text-muted); margin-top: 6px; }
-  .secret-reveal { background: var(--pink-light); border-radius: var(--radius); padding: 12px 16px; margin: 1rem 0; font-size: 14px; color: var(--pink-dark); width: 100%; text-align: left; }
-  .secret-reveal strong { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; opacity: 0.7; }
-  .dare-card { background: var(--amber-bg); border-radius: var(--radius); padding: 14px 16px; margin: 0 0 1rem; width: 100%; text-align: left; border: 1px dashed #FAC775; }
-  .dare-label { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--amber-text); margin-bottom: 6px; }
-  .dare-text { font-size: 14px; color: var(--text); line-height: 1.5; }
-  .wingman-reveal { font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; }
-
-  /* Leaderboard */
-  .lb-list { flex: 1; }
-  .lb-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 0.5px solid var(--border); }
-  .lb-rank { font-size: 15px; font-weight: 700; color: var(--text-muted); width: 22px; text-align: center; }
-  .lb-rank.gold { color: #EF9F27; }
-  .lb-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; }
-  .lb-info { flex: 1; }
-  .lb-name { font-size: 14px; font-weight: 600; }
-  .lb-single { font-size: 12px; color: var(--text-muted); }
-  .lb-pts { font-size: 15px; font-weight: 700; color: var(--pink); }
-  .lb-trophy { font-size: 16px; }
-
-  /* Info rows */
-  .info-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; }
-  .info-row:last-child { border-bottom: none; }
-  .info-icon { font-size: 16px; flex-shrink: 0; width: 22px; text-align: center; }
-  .info-text { color: var(--text); line-height: 1.5; }
-
-  /* Hint */
-  .hint { font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 4px; }
-
-  /* Empty state */
-  .empty { text-align: center; padding: 3rem 1rem; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .empty-icon { font-size: 52px; margin-bottom: 14px; }
-
-  /* Loading */
-  .loading { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 14px; }
-
-  /* Toast */
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #222; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; z-index: 999; }
-  .toast.show { opacity: 1; }
-
-  /* Name entry */
-  .name-entry { text-align: center; padding: 1rem 0; }
-  .name-avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--pink); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; color: white; margin: 0 auto 1rem; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#D4537E">
+<title>Haaave you met…?</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<!-- welcome splash -->
+<div class="splash" id="splash">
+  <img class="splash-meme" src="barney.png" alt="Barney: I suggest we play a little game I like to call 'Have You Met Ted?'">
+  <div class="splash-brand">
+    <svg class="brand-mark" viewBox="0 0 56 36" aria-hidden="true" focusable="false">
+      <path class="bm-wing" d="M21 19C13 12 5 13 1.5 16.5 7 16 13 18 19 23Z"/>
+      <path class="bm-wing" d="M35 19c8-7 16-6 19.5-2.5C49 16 43 18 37 23Z"/>
+      <path class="bm-heart" d="M28 32c-2-2-8-7-8-12.5 0-2.7 2-4.5 4.3-4.5 1.7 0 3.1 1 3.7 2.3.6-1.3 2-2.3 3.7-2.3 2.3 0 4.3 1.8 4.3 4.5C36 25 30 30 28 32Z"/>
+    </svg>
+    <div class="title">Haaave you met<small>…?</small></div>
+  </div>
+  <div class="legendary">Katherine and Antoine. June 20. The wingman games begin.</div>
+  <button class="btn btn-pink" onclick="dismissSplash()">Suit up and enter</button>
+  <button class="btn splash-link" onclick="showExplain()">Wait, what is this?</button>
+</div>
+
+<!-- "what is this" explainer -->
+<div class="explain" id="explain">
+  <button class="explain-back" onclick="hideExplain()" aria-label="Back">←</button>
+  <div class="explain-inner">
+    <div class="explain-title">What's the deal?</div>
+    <p class="explain-lede">It's a little game for the wedding. Every single here has a friend in their corner playing wingman.</p>
+
+    <div class="explain-step">
+      <span class="label">If you're a wingman</span>
+      <p>Build a profile for your single friend and talk them up. Then catch them in the act all night, a speech, a dance, a phone number, a fifth drink, and snap a photo. Every moment you log scores them points.</p>
+    </div>
+    <div class="explain-step">
+      <span class="label">If you're just here for the fun</span>
+      <p>You don't have to be single to join in. Flip through the singles, back the ones you like, and pile on the reactions. Mostly it's for the laughs.</p>
+    </div>
+    <div class="explain-step">
+      <span class="label">If you're single</span>
+      <p>See someone you'd actually want to meet? Match them and send their wingman a stack of points. You can also build your own profile if nobody's done it for you.</p>
+    </div>
+
+    <p class="explain-close">Most points by the end of the night wins Best Wingman. Now go make some introductions.</p>
+    <button class="btn btn-pink" onclick="enterFromExplain()">Got it, let's go</button>
+  </div>
+</div>
+
 <div class="app" id="app">
 
-  <!-- WELCOME -->
-  <div class="screen active" id="s-welcome">
-    <div class="logo">
-      <span class="logo-ring">💍</span>
-      <div class="logo-name">Aisle Crush</div>
-      <div class="logo-date">Katherine & Antoine · June 20, 2025</div>
+  <!-- Persistent brand bar, tap to return to the splash -->
+  <header class="brandbar" id="brandbar" role="button" tabindex="0"
+          aria-label="Haaave you met, back to start"
+          onclick="showSplash()"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showSplash();}">
+    <svg class="brand-mark" viewBox="0 0 56 36" aria-hidden="true" focusable="false">
+      <path class="bm-wing" d="M21 19C13 12 5 13 1.5 16.5 7 16 13 18 19 23Z"/>
+      <path class="bm-wing" d="M35 19c8-7 16-6 19.5-2.5C49 16 43 18 37 23Z"/>
+      <path class="bm-heart" d="M28 32c-2-2-8-7-8-12.5 0-2.7 2-4.5 4.3-4.5 1.7 0 3.1 1 3.7 2.3.6-1.3 2-2.3 3.7-2.3 2.3 0 4.3 1.8 4.3 4.5C36 25 30 30 28 32Z"/>
+    </svg>
+    <span class="brand-word">Haaave you met<small>…?</small></span>
+  </header>
+
+  <!-- ===== BROWSE (swipe deck) ===== -->
+  <div class="screen active" id="s-browse">
+    <div class="app-head">
+      <div class="section-title">Browse</div>
+      <div class="section-sub">Swipe to meet the singles.</div>
     </div>
-    <div class="card">
-      <div class="section-title">Welcome, guest!</div>
-      <div class="section-sub">Are you a single looking for love… or a wingman here to make it happen?</div>
-      <div class="role-grid">
-        <button class="role-btn" onclick="startWingman()">
-          <span class="role-icon">🦅</span>
-          <div class="role-label">Wingman</div>
-          <div class="role-desc">Build your single's profile & earn points</div>
-        </button>
-        <button class="role-btn" onclick="startSingle()">
-          <span class="role-icon">💘</span>
-          <div class="role-label">I'm single</div>
-          <div class="role-desc">Swipe, match & find your wedding date</div>
-        </button>
-      </div>
+    <div class="deck-progress" id="deck-progress" hidden>
+      <div class="deck-progress-track"><div class="deck-progress-fill" id="deck-progress-fill"></div></div>
+      <div class="deck-progress-label" id="deck-progress-label"></div>
     </div>
-    <div class="card" style="cursor:pointer" onclick="goTo('s-leaderboard')">
-      <div style="display:flex;align-items:center;gap:12px">
-        <span style="font-size:24px">🏆</span>
-        <div style="flex:1">
-          <div style="font-size:14px;font-weight:600">Wingman leaderboard</div>
-          <div style="font-size:12px;color:var(--text-muted)">Who's winning Best Wingman?</div>
-        </div>
-        <span style="font-size:18px;color:var(--text-muted)">›</span>
-      </div>
-    </div>
+    <div class="deck" id="deck"><div class="loading">Rounding up the singles…</div></div>
   </div>
 
-  <!-- WINGMAN: who are you? -->
-  <div class="screen" id="s-wingman-id">
-    <div class="topbar">
-      <button class="back" onclick="goTo('s-welcome')">←</button>
-      <div class="topbar-title">Wingman check-in</div>
-    </div>
-    <div class="section-title">Who are you? 🦅</div>
-    <div class="section-sub">Enter your name so we can match you to your single.</div>
-    <div class="field">
-      <label>Your name</label>
-      <input type="text" id="wm-id-input" placeholder="e.g. Sophie" autocomplete="given-name">
-    </div>
-    <div style="flex:1"></div>
-    <button class="btn btn-pink" onclick="lookupWingman()">Continue →</button>
-  </div>
-
-  <!-- WINGMAN: intro -->
-  <div class="screen" id="s-wingman-intro">
-    <div class="topbar">
-      <button class="back" onclick="goTo('s-wingman-id')">←</button>
-      <div class="topbar-title">Your mission</div>
-    </div>
-    <div class="name-entry">
-      <div class="name-avatar" id="wm-avatar-letter">S</div>
-      <div class="section-title" id="wm-intro-title">Hey Sophie!</div>
-      <div class="section-sub" id="wm-intro-sub">Your single is <strong id="wm-intro-single">Lucas</strong>. Build them an irresistible profile.</div>
-    </div>
-    <div class="card">
-      <div class="info-row"><span class="info-icon">✅</span><span class="info-text">Your single won't see their profile until they match</span></div>
-      <div class="info-row"><span class="info-icon">✅</span><span class="info-text">Your identity as wingman is revealed only after a match</span></div>
-      <div class="info-row"><span class="info-icon">🏆</span><span class="info-text">Points: 1 per match · 3 for a bouquet toss · 5 for "Cutest Match" vote</span></div>
-    </div>
-    <div style="flex:1"></div>
-    <button class="btn btn-pink" onclick="goTo('s-wm-form')">Build the profile →</button>
-  </div>
-
-  <!-- WINGMAN FORM -->
-  <div class="screen" id="s-wm-form">
-    <div class="topbar">
-      <button class="back" onclick="goTo('s-wingman-intro')">←</button>
-      <div class="topbar-title" id="form-step-label">Step 1 of 3</div>
-    </div>
-    <div class="progress"><div class="progress-fill" id="form-prog" style="width:10%"></div></div>
-
-    <!-- Step 1 -->
-    <div id="wf-step-1">
-      <div class="section-title">The basics</div>
-      <div class="section-sub">Tell us about <span id="fs1-single-name">your single</span>.</div>
-      <div class="field">
-        <label>Their age</label>
-        <input type="number" id="f-age" placeholder="28" min="18" max="99">
-      </div>
-      <div class="field">
-        <label>Their vibe — pick all that apply</label>
-        <div class="pill-group" id="f-vibes">
-          <span class="pill" onclick="togglePill(this)">🎸 Music lover</span>
-          <span class="pill" onclick="togglePill(this)">🍕 Foodie</span>
-          <span class="pill" onclick="togglePill(this)">🌍 Traveller</span>
-          <span class="pill" onclick="togglePill(this)">📚 Bookworm</span>
-          <span class="pill" onclick="togglePill(this)">🎉 Party animal</span>
-          <span class="pill" onclick="togglePill(this)">🐶 Dog person</span>
-          <span class="pill" onclick="togglePill(this)">🧘 Wellness</span>
-          <span class="pill" onclick="togglePill(this)">💼 Ambitious</span>
-          <span class="pill" onclick="togglePill(this)">🎨 Creative</span>
-          <span class="pill" onclick="togglePill(this)">⚽ Sports fan</span>
-        </div>
-      </div>
-      <div style="flex:1"></div>
-      <button class="btn btn-pink" onclick="wfNext(2)">Next →</button>
-    </div>
-
-    <!-- Step 2 -->
-    <div id="wf-step-2" style="display:none">
-      <div class="section-title">The hype</div>
-      <div class="section-sub">Sell your single hard. This is what people read before swiping.</div>
-      <div class="field">
-        <label>Your pitch — why should someone match with them?</label>
-        <textarea id="f-pitch" placeholder="e.g. Lucas will make you laugh until you cry and is genuinely the best person in any room he walks into..."></textarea>
-      </div>
-      <div class="field">
-        <label>Their most embarrassing habit 😅</label>
-        <input type="text" id="f-habit" placeholder="e.g. Quotes The Office at every opportunity">
-      </div>
-      <div class="field">
-        <label>Will they cry during the ceremony?</label>
-        <div class="pill-group" id="f-cry">
-          <span class="pill" onclick="selectPill('f-cry', this)">😭 Absolutely</span>
-          <span class="pill" onclick="selectPill('f-cry', this)">😢 Probably</span>
-          <span class="pill" onclick="selectPill('f-cry', this)">😐 Unlikely</span>
-          <span class="pill" onclick="selectPill('f-cry', this)">😎 Zero chance</span>
-        </div>
-      </div>
-      <div class="field">
-        <label>Dance floor rating</label>
-        <div class="star-row" id="f-stars">
-          <span class="star" onclick="setStar(1)">★</span>
-          <span class="star" onclick="setStar(2)">★</span>
-          <span class="star" onclick="setStar(3)">★</span>
-          <span class="star" onclick="setStar(4)">★</span>
-          <span class="star" onclick="setStar(5)">★</span>
-        </div>
-      </div>
-      <button class="btn btn-pink" onclick="wfNext(3)">Next →</button>
-      <button class="btn btn-outline" onclick="wfNext(1)">← Back</button>
-    </div>
-
-    <!-- Step 3 -->
-    <div id="wf-step-3" style="display:none">
-      <div class="section-title">The flags</div>
-      <div class="section-sub">Be honest. People love transparency.</div>
-      <div class="field">
-        <label>Their biggest green flag 🟢</label>
-        <input type="text" id="f-green" placeholder="e.g. Remembers your coffee order after one date">
-      </div>
-      <div class="field">
-        <label>Their biggest red flag 🚩</label>
-        <input type="text" id="f-red" placeholder="e.g. Still has an ex's hoodie — 'it's comfy, okay'">
-      </div>
-      <div class="field">
-        <label>Secret revealed only after matching 🤫</label>
-        <input type="text" id="f-secret" placeholder="e.g. Is secretly an incredible cook">
-        <div class="hint">This unlocks only after a mutual match — adds mystery!</div>
-      </div>
-      <div style="flex:1"></div>
-      <button class="btn btn-pink" onclick="submitProfile()">Submit profile 🎉</button>
-      <button class="btn btn-outline" onclick="wfNext(2)">← Back</button>
-    </div>
-  </div>
-
-  <!-- PROFILE SUBMITTED -->
-  <div class="screen" id="s-submitted">
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:12px;">
-      <span style="font-size:64px">🎉</span>
-      <div class="section-title">Profile live!</div>
-      <div class="section-sub" id="submitted-msg">Lucas is now in the pool. Watch those matches roll in!</div>
-      <div class="card" style="width:100%">
-        <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">Your wingman score</div>
-        <div style="font-size:40px;font-weight:700;color:var(--pink)" id="wm-score">0 pts</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Every match earns you points</div>
-      </div>
-    </div>
-    <button class="btn btn-pink" onclick="goTo('s-leaderboard')">View leaderboard 🏆</button>
-    <button class="btn btn-outline" onclick="goTo('s-welcome')" style="margin-top:8px">Back to home</button>
-  </div>
-
-  <!-- SINGLE: who are you? -->
-  <div class="screen" id="s-single-id">
-    <div class="topbar">
-      <button class="back" onclick="goTo('s-welcome')">←</button>
-      <div class="topbar-title">Who are you?</div>
-    </div>
-    <div class="section-title">Enter your name 💘</div>
-    <div class="section-sub">We'll show you profiles and let you swipe for matches.</div>
-    <div class="field">
-      <label>Your name</label>
-      <input type="text" id="single-id-input" placeholder="e.g. Lucas" autocomplete="given-name">
-    </div>
-    <div style="flex:1"></div>
-    <button class="btn btn-pink" onclick="startSwiping()">Start swiping →</button>
-  </div>
-
-  <!-- SWIPE -->
-  <div class="screen" id="s-swipe">
-    <div class="topbar">
-      <button class="back" onclick="goTo('s-welcome')">←</button>
-      <div class="topbar-title">Find your match</div>
-    </div>
-    <div id="swipe-area" style="flex:1"></div>
-  </div>
-
-  <!-- MATCH -->
-  <div class="screen" id="s-match">
-    <div class="match-screen" id="match-content">
-      <div class="match-burst">🎊</div>
-      <div class="match-title">It's a match!</div>
-      <div class="match-sub" id="match-names"></div>
-      <div class="secret-reveal" id="match-secret" style="margin-top:1rem;">
-        <strong>Secret unlocked 🤫</strong>
-        <span id="match-secret-text"></span>
-      </div>
-      <div class="dare-card">
-        <div class="dare-label">Your wedding dare 💌</div>
-        <div class="dare-text" id="match-dare"></div>
-      </div>
-      <div class="wingman-reveal">Brought to you by wingman: <strong id="match-wingman"></strong></div>
-      <button class="btn btn-pink" onclick="continueSwipe()" style="width:100%">Keep swiping 💘</button>
-      <button class="btn btn-outline" onclick="goTo('s-welcome')" style="margin-top:8px;width:100%">Back to home</button>
-    </div>
-  </div>
-
-  <!-- ALL DONE -->
-  <div class="screen" id="s-done">
-    <div class="empty">
-      <div class="empty-icon">💐</div>
-      <div class="section-title">You've seen everyone!</div>
-      <div class="section-sub">Check back later — more profiles might appear.</div>
-    </div>
-    <button class="btn btn-outline" onclick="resetAndSwipe()">Start over</button>
-    <button class="btn btn-outline" onclick="goTo('s-welcome')" style="margin-top:8px">Back to home</button>
-  </div>
-
-  <!-- LEADERBOARD -->
+  <!-- ===== LEADERBOARD ===== -->
   <div class="screen" id="s-leaderboard">
-    <div class="topbar">
-      <button class="back" onclick="goTo('s-welcome')">←</button>
-      <div class="topbar-title">Wingman leaderboard 🏆</div>
+    <div class="app-head">
+      <div class="section-title">Leaderboard</div>
+      <div class="section-sub">Who's carrying their single?</div>
     </div>
-    <div class="section-sub">Who's winning Best Wingman at the speeches?</div>
-    <div class="lb-list" id="lb-content"><div class="loading">Loading...</div></div>
-    <button class="btn btn-outline" onclick="goTo('s-welcome')" style="margin-top:1rem">Back to home</button>
+    <div id="lb-content"><div class="loading">Loading…</div></div>
+  </div>
+
+  <!-- ===== ME ===== -->
+  <div class="screen" id="s-me">
+    <div class="app-head">
+      <div class="section-title">You</div>
+      <div class="section-sub">Manage your singles and log the night.</div>
+    </div>
+    <div id="me-content"></div>
+  </div>
+
+  <!-- ===== PROFILE BUILDER (create/edit) ===== -->
+  <div class="screen no-nav-pad" id="s-form">
+    <div class="topbar">
+      <button class="back" onclick="cancelForm()">←</button>
+      <div class="topbar-title" id="form-title">New profile</div>
+    </div>
+
+    <div class="builder">
+      <div class="section-sub" style="margin-bottom:14px">Photos do the talking. Add up to 3. The first is their cover.</div>
+      <div class="photo-tiles" id="photo-tiles"></div>
+      <input type="file" id="photo-input" accept="image/*" multiple hidden>
+
+      <div class="field" id="name-field">
+        <label>Their first name</label>
+        <input type="text" id="b-name" placeholder="e.g. Lucas" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Sell them in one line</label>
+        <input type="text" id="b-pitch" placeholder="e.g. The best hang at any wedding, hands down.">
+      </div>
+      <div class="field">
+        <label>Ask them about…</label>
+        <input type="text" id="b-ask" placeholder="e.g. their doomed attempt at making sourdough">
+        <div class="hint">This is the opener. Give a stranger something to walk up and say.</div>
+      </div>
+
+      <div class="builder-prompts">
+        <div class="label" style="margin-bottom:10px">Their prompts <span class="prompt-count" id="prompt-count">0/4</span> <span style="color:var(--text-muted);font-weight:400">optional</span></div>
+        <div id="prompt-cards"></div>
+        <button class="btn btn-outline" id="add-prompt-btn" onclick="openPromptPicker()">Add a prompt</button>
+      </div>
+
+      <button class="btn btn-pink" id="form-submit-btn" style="margin-top:16px" onclick="submitForm()">Post profile</button>
+    </div>
   </div>
 
 </div>
 
+<!-- Bottom tab bar -->
+<nav class="tabbar" id="tabbar">
+  <button class="tab on" data-screen="s-browse" onclick="switchTab(this)">Browse</button>
+  <button class="tab" data-screen="s-leaderboard" onclick="switchTab(this)">Leaderboard</button>
+  <button class="tab" data-screen="s-me" onclick="switchTab(this)">You</button>
+</nav>
+
+<!-- Prompt picker sheet -->
+<div class="overlay" id="prompt-picker-overlay">
+  <div class="sheet">
+    <div class="sheet-grab"></div>
+    <div class="sheet-title">Add a prompt</div>
+    <div class="sheet-sub">Pick what people will learn about them, and what they can chat to them about.</div>
+    <div class="prompt-picker-list" id="prompt-picker-list"></div>
+    <button class="btn btn-outline" onclick="closeSheet('prompt-picker-overlay')">Cancel</button>
+  </div>
+</div>
+
+<!-- Log-event sheet -->
+<div class="overlay" id="event-overlay">
+  <div class="sheet" id="event-sheet">
+    <div class="sheet-head">
+      <div class="sheet-grab"></div>
+      <button type="button" class="sheet-close" aria-label="Close" onclick="closeSheet('event-overlay')">✕</button>
+      <div class="sheet-title" id="evt-title">Log a moment</div>
+      <div class="sheet-sub">Two taps: grab the receipt, pick what went down. It posts to their public timeline.</div>
+    </div>
+
+    <label class="photo-pick evt-photo-hero" id="evt-photo-pick">
+      <span class="evt-photo-text" id="evt-photo-text">Snap or upload the proof</span>
+      <input type="file" id="evt-photo" accept="image/*">
+    </label>
+    <div class="evt-photo-req" id="evt-photo-req">📸 A photo is the receipt. No proof, no points.</div>
+
+    <div id="evt-catalog"></div>
+
+    <div class="field" id="evt-custom-field" style="display:none">
+      <label>What went down?</label>
+      <input type="text" id="evt-custom-text" placeholder="e.g. Got the bouquet AND the DJ's number">
+    </div>
+
+    <div class="sheet-foot">
+      <button class="btn btn-pink btn-log" id="evt-submit" onclick="submitEvent()">Log it</button>
+      <button class="btn btn-outline" onclick="closeSheet('event-overlay')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Match celebration -->
+<div class="overlay" id="match-overlay">
+  <div class="sheet">
+    <div class="celebrate">
+      <div class="ttl">It's a match!</div>
+      <div class="sub" id="match-sub"></div>
+    </div>
+    <div class="reveal-box" id="match-reveal" style="display:none">
+      <div class="label">Secret unlocked</div>
+      <div class="txt" id="match-secret-text"></div>
+    </div>
+    <div class="dare-box">
+      <div class="label">Your wedding dare</div>
+      <div class="txt" id="match-dare"></div>
+    </div>
+    <button class="btn btn-pink" onclick="closeSheet('match-overlay')">Keep browsing</button>
+  </div>
+</div>
+
+<!-- Fullscreen photo viewer -->
+<div class="full-photo" id="full-photo" onclick="this.classList.remove('show')">
+  <img id="full-photo-img" alt="">
+</div>
+
 <div class="toast" id="toast"></div>
 
-<script>
-const API = '';  // same-origin
-
-// State
-let state = {
-  role: null,
-  wingmanName: null,
-  singleName: null,
-  assignment: null, // { wingman, single }
-  profiles: [],
-  swipeIndex: 0,
-  swipedIds: new Set(),
-  myProfileId: null,
-  danceRating: 0,
-};
-
-const DARES = [
-  "Sneak a selfie with the couple without them noticing.",
-  "Both steal a bread roll from the table next to yours.",
-  "Challenge each other to the cheesiest dance move before midnight.",
-  "Find the oldest guest and get their best relationship advice together.",
-  "Both sign a napkin and leave it for the couple as a memento.",
-  "Get a photo with the wedding cake without cutting it.",
-  "Ask the DJ to play your favourite song — together.",
-  "Find three people who didn't know each other before today and introduce yourselves.",
-];
-
-const COLORS = ['#D4537E','#378ADD','#1D9E75','#7F77DD','#D85A30','#BA7517','#639922','#185FA5'];
-
-function colorFor(name) {
-  let h = 0;
-  for (let c of (name || 'X')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
-  return COLORS[h % COLORS.length];
-}
-
-function initials(name) {
-  if (!name) return '?';
-  const parts = name.trim().split(' ');
-  return parts.length > 1 ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase() : name.slice(0,2).toUpperCase();
-}
-
-// Navigation
-function goTo(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id === 's-leaderboard') loadLeaderboard();
-}
-
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// Role selection
-function startWingman() { state.role = 'wingman'; goTo('s-wingman-id'); }
-function startSingle() { state.role = 'single'; goTo('s-single-id'); }
-
-async function lookupWingman() {
-  const name = document.getElementById('wm-id-input').value.trim();
-  if (!name) { toast('Please enter your name'); return; }
-  state.wingmanName = name;
-
-  try {
-    const res = await fetch(`${API}/api/assignments`);
-    const assignments = await res.json();
-    const match = assignments.find(a => a.wingman.toLowerCase() === name.toLowerCase());
-    if (match) {
-      state.assignment = match;
-      state.singleName = match.single;
-    } else {
-      // Allow unlisted wingmen too
-      state.singleName = null;
-    }
-  } catch(e) {
-    state.singleName = null;
-  }
-
-  const letter = name[0].toUpperCase();
-  document.getElementById('wm-avatar-letter').textContent = letter;
-  document.getElementById('wm-avatar-letter').style.background = colorFor(name);
-  document.getElementById('wm-intro-title').textContent = `Hey ${name}!`;
-
-  if (state.singleName) {
-    document.getElementById('wm-intro-sub').innerHTML = `Your single is <strong>${state.singleName}</strong>. Build them an irresistible profile.`;
-    document.getElementById('fs1-single-name').textContent = state.singleName;
-  } else {
-    document.getElementById('wm-intro-sub').innerHTML = `No assignment found for you — fill in your single's name manually below.`;
-    document.getElementById('fs1-single-name').textContent = 'your single';
-    // Add manual name input
-    const manualHtml = `<div class="field" id="manual-single-field"><label>Your single's name</label><input type="text" id="f-single-name-manual" placeholder="Their first name"></div>`;
-    const step1 = document.getElementById('wf-step-1');
-    if (!document.getElementById('manual-single-field')) {
-      step1.insertAdjacentHTML('afterbegin', manualHtml);
-    }
-  }
-  goTo('s-wingman-intro');
-}
-
-// Wingman form
-let wfCurrent = 1;
-
-function wfNext(step) {
-  document.getElementById('wf-step-' + wfCurrent).style.display = 'none';
-  wfCurrent = step;
-  document.getElementById('wf-step-' + step).style.display = '';
-  const pct = {1: 10, 2: 45, 3: 78};
-  document.getElementById('form-prog').style.width = pct[step] + '%';
-  document.getElementById('form-step-label').textContent = `Step ${step} of 3`;
-}
-
-function togglePill(el) { el.classList.toggle('on'); }
-function selectPill(groupId, el) {
-  document.getElementById(groupId).querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
-  el.classList.add('on');
-}
-
-function setStar(n) {
-  state.danceRating = n;
-  document.querySelectorAll('#f-stars .star').forEach((s, i) => s.classList.toggle('lit', i < n));
-}
-
-async function submitProfile() {
-  const singleName = state.singleName || document.getElementById('f-single-name-manual')?.value?.trim();
-  if (!singleName) { toast('Please enter the single\'s name'); return; }
-
-  const vibes = [...document.querySelectorAll('#f-vibes .pill.on')].map(p => p.textContent.trim());
-  const cryEl = document.querySelector('#f-cry .pill.on');
-  const cry = cryEl ? cryEl.textContent.trim() : '😐 Unlikely';
-
-  const profile = {
-    singleName,
-    wingmanName: state.wingmanName,
-    age: document.getElementById('f-age').value || '',
-    vibes,
-    pitch: document.getElementById('f-pitch').value.trim(),
-    habit: document.getElementById('f-habit').value.trim(),
-    cry,
-    dance: state.danceRating,
-    greenFlag: document.getElementById('f-green').value.trim(),
-    redFlag: document.getElementById('f-red').value.trim(),
-    secret: document.getElementById('f-secret').value.trim(),
-  };
-
-  try {
-    const res = await fetch(`${API}/api/profiles`, {
-      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(profile)
-    });
-    const data = await res.json();
-    state.myProfileId = data.profile.id;
-    document.getElementById('submitted-msg').textContent = `${singleName}'s profile is now live. Watch those matches roll in, ${state.wingmanName}!`;
-    document.getElementById('form-prog').style.width = '100%';
-    goTo('s-submitted');
-  } catch(e) {
-    toast('Error saving profile. Try again.');
-  }
-}
-
-// Single swiping
-async function startSwiping() {
-  const name = document.getElementById('single-id-input').value.trim();
-  if (!name) { toast('Please enter your name'); return; }
-  state.singleName = name;
-  state.swipedIds = new Set();
-  state.swipeIndex = 0;
-
-  try {
-    const res = await fetch(`${API}/api/profiles`);
-    state.profiles = await res.json();
-    // Filter out own profile
-    state.profiles = state.profiles.filter(p => p.singleName.toLowerCase() !== name.toLowerCase());
-  } catch(e) {
-    state.profiles = [];
-  }
-  goTo('s-swipe');
-  renderSwipe();
-}
-
-function getNextProfile() {
-  for (let i = 0; i < state.profiles.length; i++) {
-    if (!state.swipedIds.has(state.profiles[i].id)) return state.profiles[i];
-  }
-  return null;
-}
-
-function renderSwipe() {
-  const area = document.getElementById('swipe-area');
-  const p = getNextProfile();
-  if (!p) { goTo('s-done'); return; }
-
-  const seen = [...state.swipedIds].length;
-  const total = state.profiles.length;
-  const stars = '★'.repeat(p.dance || 0) + '☆'.repeat(5 - (p.dance || 0));
-  const col = colorFor(p.singleName);
-  const ini = initials(p.singleName);
-
-  area.innerHTML = `
-    <div class="swipe-card">
-      <div class="swipe-photo" style="background: linear-gradient(135deg, ${col}22 0%, ${col}44 100%)">
-        <div class="avatar" style="background:${col}">${ini}</div>
-        <div class="wingman-badge">✈️ by ${p.wingmanName}</div>
-        <div class="card-count">${seen + 1} / ${total}</div>
-      </div>
-      <div class="swipe-body">
-        <div class="swipe-name">${p.singleName} ${p.age ? `<span style="font-size:16px;font-weight:400;color:var(--text-muted)">${p.age}</span>` : ''}</div>
-        ${p.vibes && p.vibes.length ? `<div class="swipe-vibes">${p.vibes.map(v => `<span class="vibe-tag">${v}</span>`).join('')}</div>` : ''}
-        ${p.pitch ? `<div class="swipe-pitch">"${p.pitch}"</div>` : ''}
-        <div class="dance-row">
-          <span>🕺 ${stars}</span>
-          ${p.cry ? `<span>· ${p.cry} at ceremony</span>` : ''}
-        </div>
-        ${(p.greenFlag || p.redFlag) ? `
-        <div class="flag-grid">
-          ${p.greenFlag ? `<div class="flag green">🟢 ${p.greenFlag}</div>` : ''}
-          ${p.redFlag ? `<div class="flag red">🚩 ${p.redFlag}</div>` : ''}
-        </div>` : ''}
-        <div class="secret-lock">🔒 Secret unlocks after matching</div>
-      </div>
-    </div>
-    <div class="swipe-actions">
-      <button class="action-btn pass" onclick="doSwipe('${p.id}', 'pass')" aria-label="Pass">❌</button>
-      <button class="action-btn maybe" onclick="doSwipe('${p.id}', 'maybe')" aria-label="Maybe">🥂</button>
-      <button class="action-btn heart" onclick="doSwipe('${p.id}', 'yes')" aria-label="Match">💍</button>
-    </div>
-    <div class="action-labels"><span>pass</span><span>maybe</span><span>match!</span></div>
-  `;
-}
-
-async function doSwipe(profileId, action) {
-  state.swipedIds.add(Number(profileId));
-
-  // Find swiper's own profile id (by name)
-  const myProfile = state.profiles.find(p => false); // singles don't have profiles they swipe with
-  // We use singleName as the swiperId proxy
-  const swiperId = 'single:' + state.singleName.toLowerCase();
-
-  if (action !== 'pass') {
-    try {
-      const res = await fetch(`${API}/api/swipe`, {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ swiperId, profileId: Number(profileId), action })
-      });
-      const data = await res.json();
-      if (data.match) {
-        const p = state.profiles.find(pr => pr.id == profileId);
-        showMatch(p);
-        return;
-      }
-    } catch(e) {}
-  }
-  renderSwipe();
-}
-
-function showMatch(profile) {
-  document.getElementById('match-names').textContent = `You & ${profile.singleName}`;
-  document.getElementById('match-secret-text').textContent = profile.secret || 'They have a great secret to share in person!';
-  document.getElementById('match-dare').textContent = DARES[Math.floor(Math.random() * DARES.length)];
-  document.getElementById('match-wingman').textContent = profile.wingmanName;
-  goTo('s-match');
-}
-
-function continueSwipe() { goTo('s-swipe'); renderSwipe(); }
-function resetAndSwipe() { state.swipedIds = new Set(); goTo('s-swipe'); renderSwipe(); }
-
-// Leaderboard
-async function loadLeaderboard() {
-  const el = document.getElementById('lb-content');
-  el.innerHTML = '<div class="loading">Loading...</div>';
-  try {
-    const res = await fetch(`${API}/api/leaderboard`);
-    const data = await res.json();
-    if (!data.length) { el.innerHTML = '<div class="loading">No profiles submitted yet.</div>'; return; }
-    el.innerHTML = data.map((row, i) => `
-      <div class="lb-row">
-        <div class="lb-rank ${i === 0 ? 'gold' : ''}">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i+1}</div>
-        <div class="lb-avatar" style="background:${colorFor(row.wingman)}">${initials(row.wingman)}</div>
-        <div class="lb-info">
-          <div class="lb-name">${row.wingman}</div>
-          <div class="lb-single">→ ${row.single}</div>
-        </div>
-        <div class="lb-pts">${row.matches} pt${row.matches !== 1 ? 's' : ''}</div>
-      </div>
-    `).join('');
-  } catch(e) {
-    el.innerHTML = '<div class="loading">Could not load leaderboard.</div>';
-  }
-}
-</script>
+<script src="app.js"></script>
 </body>
 </html>

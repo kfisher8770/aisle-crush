@@ -1,0 +1,12 @@
+.superpowers/
+
+node_modules/
+
+public/uploads/*
+!public/uploads/.gitkeep
+
+# local persistent-data dir (DATA_DIR default) — photos + data live here off-Railway
+/uploads/
+
+.playwright-mcp/
+.playwright-proof.png

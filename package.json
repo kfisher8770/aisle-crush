@@ -1,16 +1,19 @@
 {
-  "name": "aisle-crush",
-  "version": "1.0.0",
-  "description": "",
+  "name": "haaave-you-met",
+  "version": "2.0.0",
+  "description": "Wedding wingman party app — build profiles for your single friends and climb the leaderboard",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "archiver": "^7.0.1",
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "multer": "^2.2.0"
   }
 }

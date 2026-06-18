@@ -278,10 +278,8 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .btn-log { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .log-pts { font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .5px; background: var(--pink); color: #fff; border-radius: 20px; padding: 2px 8px; }
 
-/* deck controls — dating-app action bar (3 reactions + match) below the card */
-.deck-controls { display: grid; grid-template-columns: 34px 1fr 34px; gap: 7px; align-items: stretch; margin-top: 12px; }
-.nav-arrow { border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface); font-size: 20px; cursor: pointer; color: var(--text-muted); }
-.nav-arrow:active { transform: scale(.92); }
+/* deck controls — reaction action bar below the card (swipe to navigate) */
+.deck-controls { margin-top: 12px; }
 .act-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .act-btn { border: 1px solid var(--border-strong); background: var(--surface); border-radius: 14px; padding: 8px 2px 7px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 1px; transition: transform .1s, background .14s, border-color .14s; }
 .act-btn:active { transform: scale(1.08); }

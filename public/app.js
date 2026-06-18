@@ -178,10 +178,7 @@ function renderCard() {
       </div>
     </div>`;
 
-  document.getElementById('deck-controls').innerHTML =
-    `<button class="nav-arrow" onclick="flip(-1)" aria-label="Previous">‹</button>
-     <div class="act-row">${reactActions}</div>
-     <button class="nav-arrow" onclick="flip(1)" aria-label="Next">›</button>`;
+  document.getElementById('deck-controls').innerHTML = `<div class="act-row">${reactActions}</div>`;
 
   attachSwipe(document.getElementById('card'));
 }
@@ -201,10 +198,7 @@ function renderWingmanCTA(stage) {
         <button class="btn btn-pink" onclick="setTab('s-me')">Become a wingman</button>
       </div>
     </div>`;
-  document.getElementById('deck-controls').innerHTML =
-    `<button class="nav-arrow" onclick="flip(-1)" aria-label="Previous">‹</button>
-     <div class="cta-hint">Swipe back to keep browsing</div>
-     <button class="nav-arrow" onclick="flip(1)" aria-label="Next">›</button>`;
+  document.getElementById('deck-controls').innerHTML = `<div class="cta-hint">Swipe back to keep browsing</div>`;
   attachSwipe(document.getElementById('card'));
 }
 

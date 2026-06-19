@@ -80,8 +80,8 @@ function switchTab(btn) {
 function setTab(screen) { const b = document.querySelector(`.tab[data-screen="${screen}"]`); if (b) switchTab(b); }
 
 /* ---------------- splash ---------------- */
-function maybeSplash() { if (!localStorage.getItem(LS.splash)) document.getElementById('splash').classList.add('show'); } // first visit only
-function dismissSplash() { localStorage.setItem(LS.splash, '1'); document.getElementById('splash').classList.remove('show'); }
+function maybeSplash() { document.getElementById('splash').classList.add('show'); } // show on every load
+function dismissSplash() { document.getElementById('splash').classList.remove('show'); setTab('s-me'); } // enter on the You tab
 function showSplash() { document.getElementById('splash').classList.add('show'); }
 function showExplain() { document.getElementById('explain').classList.add('show'); }
 function hideExplain() { document.getElementById('explain').classList.remove('show'); }

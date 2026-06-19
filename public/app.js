@@ -701,7 +701,8 @@ async function submitForm() {
     if (state.formMode === 'create') await api('/api/profiles', { method: 'POST', body: buildBuilderData() });
     else await api('/api/profiles/' + state.editingId, { method: 'PUT', body: buildBuilderData() });
     toast(state.formMode === 'create' ? 'Profile is live!' : 'Saved');
-    setTab('s-me');
+    // after posting a new profile, drop into Browse to see it in the deck; edits go back to You
+    setTab(state.formMode === 'create' ? 's-browse' : 's-me');
   } catch (e) { toast(e.message); } finally { btn.disabled = false; }
 }
 

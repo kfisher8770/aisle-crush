@@ -91,7 +91,8 @@ function enterFromExplain() { hideExplain(); dismissSplash(); }
 /* ---------------- load + deck ---------------- */
 async function loadProfiles() {
   const q = myName() ? `?revealFor=${encodeURIComponent(myName())}` : '';
-  state.profiles = await getJSON('/api/profiles' + q);
+  // API returns oldest-first; reverse so the most recently created shows up first
+  state.profiles = (await getJSON('/api/profiles' + q)).reverse();
 }
 
 // The list the deck navigates: all singles, or just one wingman's when filtered.

@@ -417,6 +417,19 @@ app.post('/api/admin/reset-all', (req, res) => {
   res.json({ success: true });
 });
 
+// Admin: surgically remove one match from a profile (by the matcher's `by` id).
+app.post('/api/admin/profiles/:id/remove-match', (req, res) => {
+  const by = (req.body && req.body.by ? req.body.by : '').trim();
+  if (!by) return res.status(400).json({ error: 'by is required' });
+  const data = readData();
+  const p = findProfile(data, req.params.id);
+  if (!p) return res.status(404).json({ error: 'not found' });
+  const before = p.matches.length;
+  p.matches = p.matches.filter((m) => m.by !== by);
+  writeData(data);
+  res.json({ success: true, removed: before - p.matches.length, matches: p.matches.length });
+});
+
 app.get('/api/admin/data', (req, res) => {
   res.json(readData());
 });

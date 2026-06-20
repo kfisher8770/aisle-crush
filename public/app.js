@@ -2,7 +2,7 @@
 
 /* ---------------- identity & local state ---------------- */
 const LS = {
-  guest: 'hym_guest', name: 'hym_name', splash: 'hym_splash',
+  guest: 'hym_guest', name: 'hym_name', splash: 'hym_splash', tab: 'hym_tab',
   reactions: 'hym_reactions', matches: 'hym_matches',
 };
 function guestId() {
@@ -71,6 +71,7 @@ function switchTab(btn) {
   document.querySelectorAll('.tab').forEach((t) => t.classList.remove('on'));
   btn.classList.add('on');
   const id = btn.dataset.screen;
+  localStorage.setItem(LS.tab, id); // remember the tab so a refresh stays put
   if (id !== 's-browse') state.browseFilter = null; // filter only lives while Browse is in view
   goScreen(id);
   if (id === 's-browse') renderDeck();
@@ -80,8 +81,8 @@ function switchTab(btn) {
 function setTab(screen) { const b = document.querySelector(`.tab[data-screen="${screen}"]`); if (b) switchTab(b); }
 
 /* ---------------- splash ---------------- */
-function maybeSplash() { document.getElementById('splash').classList.add('show'); } // show on every load
-function dismissSplash() { document.getElementById('splash').classList.remove('show'); setTab('s-me'); } // enter on the You tab
+function maybeSplash() { if (!localStorage.getItem(LS.splash)) document.getElementById('splash').classList.add('show'); } // first visit only
+function dismissSplash() { localStorage.setItem(LS.splash, '1'); document.getElementById('splash').classList.remove('show'); setTab('s-me'); } // enter on the You tab
 function showSplash() { document.getElementById('splash').classList.add('show'); }
 function showExplain() { document.getElementById('explain').classList.add('show'); }
 function hideExplain() { document.getElementById('explain').classList.remove('show'); }
@@ -855,6 +856,12 @@ async function init() {
   wirePhoto('evt-photo', 'evt-photo-pick', 'evt-photo-text', 'evtPhotoFile');
   wirePhoto('intro-photo', 'intro-photo-pick', 'intro-photo-text', 'introPhotoFile');
   try { state.catalog = await getJSON('/api/event-catalog'); } catch { state.catalog = { reactionEmojis: [], drinkLevels: [], catalog: {}, points: {} }; }
-  renderDeck();
+  // returning visitor (splash already seen): land back on the tab they left off on
+  if (!document.getElementById('splash').classList.contains('show')) {
+    const saved = localStorage.getItem(LS.tab);
+    setTab(saved && document.getElementById(saved) ? saved : 's-browse');
+  } else {
+    renderDeck(); // first visit: prep the deck behind the splash
+  }
 }
 init();

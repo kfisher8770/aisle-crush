@@ -905,7 +905,9 @@ async function submitEvent() {
   fd.append('type', state.eventSel.type);
   if (state.eventSel.key) fd.append('key', state.eventSel.key);
   if (state.eventSel.type === 'custom') { const t = document.getElementById('evt-custom-text').value.trim(); if (!t) { toast('Describe the moment'); return; } fd.append('label', t); }
-  const btn = document.getElementById('evt-submit'); btn.disabled = true;
+  const btn = document.getElementById('evt-submit');
+  btn.disabled = true; btn.classList.add('is-loading');
+  btn.innerHTML = '<span class="btn-spin"></span>Posting…';
   try {
     const res = await api(`/api/profiles/${state.eventProfileId}/events`, { method: 'POST', body: fd });
     toast(`Logged! +${res.event.points} pts`);
@@ -914,7 +916,7 @@ async function submitEvent() {
     if (document.getElementById('s-feed').classList.contains('active')) renderFeed();
     else if (document.getElementById('s-browse').classList.contains('active')) renderDeck();
     else renderMe();
-  } catch (e) { toast(e.message); } finally { btn.disabled = false; }
+  } catch (e) { toast(e.message); } finally { btn.disabled = false; btn.classList.remove('is-loading'); updateSubmit(); }
 }
 
 /* ---------------- sheets / photo viewer ---------------- */

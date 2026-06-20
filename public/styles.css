@@ -576,3 +576,8 @@ body.sheet-open { overflow: hidden; }
 
 /* single picker in the log-a-moment sheet (feed compose) */
 #evt-single-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%23993556' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 34px; }
+
+/* button loading spinner (e.g. while a moment photo uploads) */
+.btn.is-loading { opacity: .85; cursor: default; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.45); border-top-color: #fff; border-radius: 50%; animation: btnspin .6s linear infinite; }
+@keyframes btnspin { to { transform: rotate(360deg); } }

@@ -303,6 +303,23 @@ app.put('/api/profiles/:id', upload.array('photos', 3), (req, res) => {
   res.json({ success: true, profile: publicProfile(p) });
 });
 
+// Hand a profile (and its accumulated points) over to another wingman.
+app.post('/api/profiles/:id/handover', (req, res) => {
+  const from = (req.body && req.body.from ? req.body.from : '').trim();
+  const to = (req.body && req.body.to ? req.body.to : '').trim();
+  if (!to) return res.status(400).json({ error: 'new wingman name is required' });
+  const data = readData();
+  const p = findProfile(data, req.params.id);
+  if (!p) return res.status(404).json({ error: 'not found' });
+  if (from.toLowerCase() !== (p.createdBy || '').toLowerCase()) {
+    return res.status(403).json({ error: 'only the current wingman can hand this profile over' });
+  }
+  p.createdBy = to;
+  p.selfMade = to.toLowerCase() === (p.singleName || '').toLowerCase();
+  writeData(data);
+  res.json({ success: true, profile: publicProfile(p) });
+});
+
 app.delete('/api/profiles/:id', (req, res) => {
   const data = readData();
   const p = findProfile(data, req.params.id);

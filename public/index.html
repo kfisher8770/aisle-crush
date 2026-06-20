@@ -149,6 +149,13 @@
       </div>
 
       <button class="btn btn-pink" id="form-submit-btn" style="margin-top:16px" onclick="submitForm()">Post profile</button>
+
+      <div class="handover" id="handover-section" hidden>
+        <div class="label" style="margin-bottom:6px">Hand over to another wingman</div>
+        <div class="hint" style="margin:0 0 10px">Pass this single, and their points so far, to someone else. This can't be undone.</div>
+        <input type="text" id="handover-name" placeholder="New wingman's name" autocomplete="off">
+        <button class="btn btn-outline" id="handover-btn" style="margin-top:9px" onclick="handoverProfile()">Hand over</button>
+      </div>
     </div>
   </div>
 

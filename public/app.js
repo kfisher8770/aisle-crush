@@ -637,8 +637,9 @@ function renderPromptCards() {
 /* open / edit / submit */
 function newProfile(self) {
   if (!myName()) { setTab('s-me'); return; }
-  state.formMode = 'create'; state.editingId = null; resetBuilder();
+  state.formMode = 'create'; state.editingId = null; state.editingName = null; resetBuilder();
   document.getElementById('name-field').style.display = '';
+  document.getElementById('handover-section').hidden = true;
   document.getElementById('form-title').textContent = self ? 'Your profile' : 'New profile';
   if (self) document.getElementById('b-name').value = myName();
   document.getElementById('form-submit-btn').textContent = 'Post profile';
@@ -648,8 +649,10 @@ function newProfile(self) {
 function editProfile(id) {
   getJSON('/api/profiles').then((all) => {
     const prof = all.find((x) => String(x.id) === String(id)); if (!prof) { toast('Not found'); return; }
-    state.formMode = 'edit'; state.editingId = id; resetBuilder();
+    state.formMode = 'edit'; state.editingId = id; state.editingName = prof.singleName; resetBuilder();
     document.getElementById('name-field').style.display = 'none';
+    document.getElementById('handover-section').hidden = false;
+    document.getElementById('handover-name').value = '';
     document.getElementById('form-title').textContent = `Edit ${prof.singleName}`;
     document.getElementById('b-pitch').value = prof.pitch || '';
     document.getElementById('b-ask').value = prof.askAbout || '';
@@ -666,6 +669,19 @@ function editProfile(id) {
 }
 
 function cancelForm() { setTab('s-me'); }
+
+async function handoverProfile() {
+  const to = document.getElementById('handover-name').value.trim();
+  if (!to) { toast("Enter the new wingman's name"); return; }
+  if (to.toLowerCase() === myName().toLowerCase()) { toast("That's already you"); return; }
+  if (!window.confirm(`Hand ${state.editingName} over to ${to}? You'll lose this profile and its points.`)) return;
+  const btn = document.getElementById('handover-btn'); btn.disabled = true;
+  try {
+    await postJSON(`/api/profiles/${state.editingId}/handover`, { from: myName(), to });
+    toast(`${state.editingName} handed over to ${to}`);
+    setTab('s-me');
+  } catch (e) { toast(e.message); } finally { btn.disabled = false; }
+}
 
 function validateBuilder() {
   if (state.photos.length < 1) return 'Add at least one photo.';

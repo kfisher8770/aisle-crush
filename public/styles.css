@@ -236,6 +236,9 @@ textarea { resize: none; height: 90px; line-height: 1.5; }
 .tile-x.dark { position: static; background: var(--gray-bg); color: var(--text-muted); width: 26px; height: 26px; }
 
 .builder-prompts { margin-top: .4rem; }
+/* hand-over-to-another-wingman: a distinct action, set off from the edit form */
+.handover { margin-top: 1.6rem; padding-top: 1.1rem; border-top: 1px dashed var(--border-strong); }
+.handover[hidden] { display: none; }
 .prompt-count { font-family: var(--mono); color: var(--pink); margin-left: 6px; }
 .prompt-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px 12px 12px; margin-bottom: 10px; background: var(--surface); }
 .pc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 9px; }

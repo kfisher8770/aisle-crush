@@ -404,6 +404,7 @@ app.post('/api/profiles/:id/events', upload.single('photo'), (req, res) => {
     id: `${Date.now()}-${Math.round(Math.random() * 1e6).toString(36)}`,
     ...resolved,
     photoUrl: photoUrl(req),
+    postedBy: (b.by || '').toString().trim().slice(0, 40), // who posted it (may be empty)
     at: new Date().toISOString(),
   };
   p.events.unshift(event); // newest first

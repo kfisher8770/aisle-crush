@@ -409,7 +409,8 @@ async function renderFeed() {
   const moments = [];
   for (const p of profiles) {
     for (const ev of (p.events || [])) {
-      moments.push({ single: p.singleName, by: p.createdBy, emoji: ev.emoji, label: ev.label, points: ev.points, photoUrl: ev.photoUrl, at: ev.at });
+      const poster = (ev.postedBy && ev.postedBy.trim()) ? ev.postedBy.trim() : 'Mystery Man';
+      moments.push({ single: p.singleName, by: poster, emoji: ev.emoji, label: ev.label, points: ev.points, photoUrl: ev.photoUrl, at: ev.at });
     }
   }
   moments.sort((a, b) => Date.parse(b.at || 0) - Date.parse(a.at || 0));
@@ -902,6 +903,7 @@ async function submitEvent() {
   if (!state.eventSel) { toast('Pick what happened'); return; }
   const fd = new FormData();
   fd.append('photo', state.evtPhotoFile);
+  fd.append('by', myName()); // who's posting (empty if they never set a name)
   fd.append('type', state.eventSel.type);
   if (state.eventSel.key) fd.append('key', state.eventSel.key);
   if (state.eventSel.type === 'custom') { const t = document.getElementById('evt-custom-text').value.trim(); if (!t) { toast('Describe the moment'); return; } fd.append('label', t); }

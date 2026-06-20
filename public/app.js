@@ -75,6 +75,7 @@ function switchTab(btn) {
   if (id !== 's-browse') state.browseFilter = null; // filter only lives while Browse is in view
   goScreen(id);
   if (id === 's-browse') renderDeck();
+  if (id === 's-feed') renderFeed();
   if (id === 's-leaderboard') loadLeaderboard();
   if (id === 's-me') renderMe();
 }
@@ -388,6 +389,45 @@ function gotoWingman(name) {
   state.browseFilter = name;
   state.deckIndex = 0;
   setTab('s-browse');
+}
+
+/* ---------------- feed (all moments) ---------------- */
+function timeAgo(iso) {
+  const t = Date.parse(iso); if (!t) return '';
+  const s = Math.max(0, Math.floor((Date.now() - t) / 1000));
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
+  const d = Math.floor(h / 24); return d + 'd ago';
+}
+
+async function renderFeed() {
+  const el = document.getElementById('feed-content');
+  let profiles = [];
+  try { profiles = await getJSON('/api/profiles'); } catch { el.innerHTML = '<div class="loading">Could not load the feed.</div>'; return; }
+  // flatten every logged moment across all singles, newest first
+  const moments = [];
+  for (const p of profiles) {
+    for (const ev of (p.events || [])) {
+      moments.push({ single: p.singleName, by: p.createdBy, emoji: ev.emoji, label: ev.label, points: ev.points, photoUrl: ev.photoUrl, at: ev.at });
+    }
+  }
+  moments.sort((a, b) => Date.parse(b.at || 0) - Date.parse(a.at || 0));
+
+  if (!moments.length) {
+    el.innerHTML = `<div class="empty"><div class="section-title">No moments yet</div><div class="section-sub">Be the first to catch a single being a legend. Tap "Post a moment" above.</div></div>`;
+    return;
+  }
+  el.innerHTML = moments.map((m) => `
+    <div class="moment-post">
+      <div class="mp-head">
+        <span class="mp-av" style="background:${colorFor(m.single)}">${esc(initials(m.single))}</span>
+        <div class="mp-who"><span class="mp-single">${esc(m.single)}</span><span class="mp-by">caught by ${esc(m.by)}</span></div>
+        <span class="mp-time">${timeAgo(m.at)}</span>
+      </div>
+      ${m.photoUrl ? `<img class="mp-photo" src="${esc(m.photoUrl)}" onclick="viewPhoto('${esc(m.photoUrl)}')" alt="">` : ''}
+      <div class="mp-cap"><span class="mp-label">${m.emoji ? esc(m.emoji) + ' ' : ''}${esc(m.label)}</span><span class="mp-pts">+${m.points}</span></div>
+    </div>`).join('');
 }
 
 async function loadLeaderboard() {
@@ -731,16 +771,48 @@ async function deleteProfile(id, name) {
 }
 
 /* ---------------- log event sheet ---------------- */
-function openEvent(id, drinkLevel, name) {
-  state.eventProfileId = id; state.eventSel = null; state.evtPhotoFile = null;
-  state.eventDrinkLevel = Number(drinkLevel) || 0;
-  document.getElementById('evt-title').textContent = name ? `Log a moment for ${name}` : 'Log a moment';
+function resetEventSheet() {
+  state.eventSel = null; state.evtPhotoFile = null;
   document.getElementById('evt-photo').value = '';
   document.getElementById('evt-photo-pick').classList.remove('has-img');
   document.getElementById('evt-photo-text').textContent = 'Snap or upload the proof';
   document.getElementById('evt-custom-text').value = '';
+}
+
+// Open the sheet for a known profile (from a card or the You tab) — single is fixed.
+function openEvent(id, drinkLevel, name) {
+  state.eventProfileId = id;
+  state.eventDrinkLevel = Number(drinkLevel) || 0;
+  document.getElementById('evt-single-field').hidden = true;
+  document.getElementById('evt-title').textContent = name ? `Log a moment for ${name}` : 'Log a moment';
+  resetEventSheet();
   renderCatalog();
   openSheet('event-overlay');
+}
+
+// Open the sheet from the Feed — no single chosen yet, so show a picker.
+async function openEventCompose() {
+  let profs = [];
+  try { profs = await getJSON('/api/profiles'); } catch {}
+  if (!profs.length) { toast('No singles yet — add one first'); return; }
+  state.feedProfiles = profs;
+  const sel = document.getElementById('evt-single-select');
+  sel.innerHTML = profs.map((p) => `<option value="${p.id}">${esc(p.singleName)}</option>`).join('');
+  document.getElementById('evt-single-field').hidden = false;
+  state.eventProfileId = profs[0].id;
+  state.eventDrinkLevel = profs[0].drinkLevel || 0;
+  document.getElementById('evt-title').textContent = 'Post a moment';
+  resetEventSheet();
+  renderCatalog();
+  openSheet('event-overlay');
+}
+
+function onEventSingleChange() {
+  const id = document.getElementById('evt-single-select').value;
+  const prof = (state.feedProfiles || []).find((p) => String(p.id) === String(id));
+  state.eventProfileId = id;
+  state.eventDrinkLevel = prof ? (prof.drinkLevel || 0) : 0;
+  if (state.eventSeg === 'drink') selectSegment('drink'); // refresh the meter for the newly picked single
 }
 
 // Build the segmented chooser; each segment reveals one category, so the sheet
@@ -825,6 +897,7 @@ function updateSubmit() {
 }
 
 async function submitEvent() {
+  if (!state.eventProfileId) { toast('Pick who this is about'); return; }
   if (!state.evtPhotoFile) { toast('Add a photo as proof'); return; }
   if (!state.eventSel) { toast('Pick what happened'); return; }
   const fd = new FormData();
@@ -838,7 +911,8 @@ async function submitEvent() {
     toast(`Logged! +${res.event.points} pts`);
     closeSheet('event-overlay');
     // refresh whichever view is showing so the new moment + points appear
-    if (document.getElementById('s-browse').classList.contains('active')) renderDeck();
+    if (document.getElementById('s-feed').classList.contains('active')) renderFeed();
+    else if (document.getElementById('s-browse').classList.contains('active')) renderDeck();
     else renderMe();
   } catch (e) { toast(e.message); } finally { btn.disabled = false; }
 }

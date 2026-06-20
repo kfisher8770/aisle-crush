@@ -97,6 +97,16 @@
     <div class="deck" id="deck"><div class="loading">Rounding up the singles…</div></div>
   </div>
 
+  <!-- ===== FEED (all moments) ===== -->
+  <div class="screen" id="s-feed">
+    <div class="app-head">
+      <div class="section-title">The Feed</div>
+      <div class="section-sub">Every legendary moment, as it happens.</div>
+    </div>
+    <button class="btn btn-pink feed-cta" onclick="openEventCompose()">📸 Post a moment</button>
+    <div id="feed-content"><div class="loading">Loading the moments…</div></div>
+  </div>
+
   <!-- ===== LEADERBOARD ===== -->
   <div class="screen" id="s-leaderboard">
     <div class="app-head">
@@ -165,6 +175,7 @@
 <nav class="tabbar" id="tabbar">
   <button class="tab on" data-screen="s-me" onclick="switchTab(this)">You</button>
   <button class="tab" data-screen="s-browse" onclick="switchTab(this)">Browse</button>
+  <button class="tab" data-screen="s-feed" onclick="switchTab(this)">Feed</button>
   <button class="tab" data-screen="s-leaderboard" onclick="switchTab(this)">Leaderboard</button>
 </nav>
 
@@ -186,10 +197,14 @@
     <button type="button" class="sheet-close" aria-label="Close" onclick="closeSheet('event-overlay')">✕</button>
     <div class="evt-head">
       <div class="sheet-title" id="evt-title">Log a moment</div>
-      <div class="sheet-sub">Two taps: grab the receipt, pick what went down. It posts to their public timeline.</div>
+      <div class="sheet-sub">Post a photo to a single's feed and score them points.</div>
     </div>
 
     <div class="evt-body">
+      <div class="field" id="evt-single-field" hidden>
+        <label>Who's the legend?</label>
+        <select id="evt-single-select" onchange="onEventSingleChange()"></select>
+      </div>
       <label class="photo-pick evt-photo-hero" id="evt-photo-pick">
         <span class="evt-photo-text" id="evt-photo-text">Snap or upload the proof</span>
         <input type="file" id="evt-photo" accept="image/*">
